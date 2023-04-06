@@ -97,7 +97,7 @@ async def is_authenticated(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return gmp.is_authenticated()
 
-@app.put("/modify_auth", tags=["auth"])
+@app.patch("/modify_auth", tags=["auth"])
 async def modify_auth(
     current_user: Annotated[User, Depends(get_current_active_user)],
     group_name: str,
@@ -255,7 +255,7 @@ async def create_task(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.create_task(name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,alert_ids=alert_ids,comment=comment,schedule_periods=schedule_periods,observers=observers,preferences=preferences), media_type="application/xml")
 
-@app.put("/modify/task", tags=["task"])
+@app.patch("/modify/task", tags=["task"])
 async def modify_task(
     current_user: Annotated[User, Depends(get_current_active_user)],
     task_id: str,
@@ -334,6 +334,46 @@ async def start_task(
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.start_task(task_id=task_id), media_type="application/xml")
+
+@app.post("/clone/task", tags=["task"])
+async def clone_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str
+    ):
+    """Clone an existing task
+
+        Arguments:
+
+            task_id: UUID of existing task to clone from
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.clone_task(task_id=task_id), media_type="application/xml")
+
+@app.patch("/move/task", tags=["task"])
+async def move_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str,
+    slave_id: Optional[str] = None
+    ):
+    """Move an existing task to another GMP slave scanner or the master
+
+        Arguments:
+
+            task_id: UUID of the task to be moved
+            slave_id: UUID of slave to reassign the task to, empty for master.
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.move_task(task_id=task_id, slave_id=slave_id), media_type="application/xml")
 
 ### REPORT DATA ###
 
