@@ -427,6 +427,35 @@ async def get_report(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details), media_type="application/xml")    
 
+@app.get("/get/reports", tags=["report"])
+async def get_reports(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    filter_string: Optional[str] = None,
+    filter_id: Optional[str] = None,
+    note_details: Optional[bool] = None,
+    override_details: Optional[bool] = None,
+    ignore_pagination: Optional[bool] = None,
+    details: Optional[bool] = None,
+):
+    """Request a list of reports
+
+        Arguments:
+
+            filter_string: Filter term to use for the query
+            filter_id: UUID of an existing filter to use for the query
+            note_details: If notes are included, whether to include note details
+            override_details: If overrides are included, whether to include override details
+            ignore_pagination: Whether to ignore the filter terms "first" and "rows".
+            details: Whether to exclude results
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.get_reports(filter_string=filter_string,filter_id=filter_id,note_details=note_details,override_details=override_details,ignore_pagination=ignore_pagination,details=details), media_type="application/xml")    
+
 ### USER DATA ###
 
 @app.get("/get/user", tags=["user"])
