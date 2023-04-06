@@ -78,6 +78,24 @@ async def describe_auth(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.describe_auth(), media_type="application/xml")
 
+@app.get("/is_authenticated", tags=["auth"])
+async def is_authenticated(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    """Checks if the user is authenticated
+
+        If the user is authenticated privileged GMP commands like get_tasks
+        may be send to gvmd.
+
+        Returns:
+            bool: True if an authenticated connection to gvmd has been
+            established.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.is_authenticated(), media_type="application/xml")
+
 ### VERSION DATA ###
 
 @app.get("/get/version", tags=["version"])
