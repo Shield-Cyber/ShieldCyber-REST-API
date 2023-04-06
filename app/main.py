@@ -25,7 +25,8 @@ OpenVas Scanner and converts them to REST API calls for easier use by most syste
 app = FastAPI(
     title="OpenVas Rest API",
     description=DESCRIPTION,
-    version=os.getenv("VERSION")
+    version=os.getenv("VERSION"),
+    swagger_ui_parameters={"tagsSorter": "alpha", "operationsSorter": "alpha"}
 )
 
 # Pre Startup Connection to gvmd Socket
@@ -42,7 +43,9 @@ async def startup():
             logger.warning("waiting 1 second for gvmd socket")
             time.sleep(1)
 
-@app.post("/authenticate", response_model=Token, tags=["authorization"])
+### AUTH DATA ###
+
+@app.post("/authenticate", response_model=Token, tags=["auth"])
 async def authenticate(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
@@ -59,7 +62,7 @@ async def authenticate(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/describe_auth", tags=["authorization"])
+@app.get("/describe_auth", tags=["auth"])
 async def describe_auth(
     current_user: Annotated[User, Depends(get_current_active_user)]
 ):
@@ -68,14 +71,18 @@ async def describe_auth(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.describe_auth(), media_type="application/xml")
 
-@app.get("/get/version", tags=["get"])
+### VERSION DATA ###
+
+@app.get("/get/version", tags=["version"])
 async def get_version(
     current_user: Annotated[User, Depends(get_current_active_user)]
 ):
     with Gmp(connection=CONNECTION) as gmp:
         return Response(content=gmp.get_version(), media_type="application/xml")
 
-@app.get("/get/tasks", tags=["get"])
+### TASK DATA ###
+
+@app.get("/get/tasks", tags=["task"])
 async def get_tasks(
     current_user: Annotated[User, Depends(get_current_active_user)],
     filter_string: Optional[str] = None,
@@ -89,7 +96,7 @@ async def get_tasks(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_tasks(filter_string=filter_string, filter_id=filter_id, trash=trash, details=details, schedules_only=schedules_only), media_type="application/xml")
 
-@app.get("/get/task", tags=["get"])
+@app.get("/get/task", tags=["task"])
 async def get_task(
     current_user: Annotated[User, Depends(get_current_active_user)],
     task_id: str
@@ -99,7 +106,9 @@ async def get_task(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_task(task_id), media_type="application/xml")
 
-@app.get("/get/report", tags=["get"])
+### REPORT DATA ###
+
+@app.get("/get/report", tags=["report"])
 async def get_report(
     current_user: Annotated[User, Depends(get_current_active_user)],
     report_id: str,
@@ -113,9 +122,21 @@ async def get_report(
     with Gmp(connection=CONNECTION) as gmp:
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details), media_type="application/xml")
-    
-@app.get("/get/user/settings", tags=["get", "user"])
+        return Response(content=gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details), media_type="application/xml")    
+
+### USER DATA ###
+
+@app.get("/get/user", tags=["user"])
+async def get_user(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    user_id: str
+    ):
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.get_user(user_id=user_id), media_type="application/xml")
+
+@app.get("/get/user/settings", tags=["user"])
 async def get_user_settings(
     current_user: Annotated[User, Depends(get_current_active_user)],
     filter_string: Optional[str] = None
