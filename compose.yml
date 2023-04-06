@@ -179,7 +179,7 @@ services:
     environment:
       - USERNAME=${USERNAME:-admin} # DEFAULT USERNAME ADMIN
       - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
-      - VERSION=0.1.0
+      - VERSION=1
     depends_on:
       - gvmd
     volumes:
