@@ -94,9 +94,9 @@ async def is_authenticated(
     with Gmp(connection=CONNECTION) as gmp:
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.is_authenticated(), media_type="application/xml")
+        return gmp.is_authenticated()
 
-@app.get("/modify_auth", tags=["auth"])
+@app.put("/modify_auth", tags=["auth"])
 async def modify_auth(
     current_user: Annotated[User, Depends(get_current_active_user)],
     group_name: str,
@@ -105,7 +105,7 @@ async def modify_auth(
     """Modifies an existing auth.
 
         Arguments:
-        
+
             group_name: Name of the group to be modified.
             auth_conf_settings: The new auth config.
 
@@ -129,7 +129,23 @@ async def get_version(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_version(), media_type="application/xml")
+    
+@app.get("/get/protocol/version", tags=["version"])
+async def get_protocol_version(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    """Determine the Greenbone Management Protocol (gmp) version used by python-gvm version.
+
+        Returns:
+            tuple: Implemented version of the Greenbone Management Protocol
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return gmp.get_protocol_version()
 
 ### TASK DATA ###
 
