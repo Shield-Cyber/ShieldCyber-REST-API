@@ -1,7 +1,8 @@
 from .auth import *
 from fastapi import FastAPI, Depends, HTTPException, status, Response
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional, Union, List
 from gvm.protocols.gmpv208.entities.report_formats import ReportFormatType
+from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
 from gvm.connections import UnixSocketConnection
 from gvm.protocols.gmp import Gmp
 import logging
@@ -212,6 +213,47 @@ async def delete_task(
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.delete_task(task_id=task_id, ultimate=ultimate), media_type="application/xml")
+
+@app.post("/create/task", tags=["task"])
+async def create_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    name: str,
+    config_id: str,
+    target_id: str,
+    scanner_id: str,
+    alterable: Optional[bool] = None,
+    hosts_ordering: Optional[HostsOrdering] = None,
+    schedule_id: Optional[str] = None,
+    alert_ids: Optional[List[str]] = None,
+    comment: Optional[str] = None,
+    schedule_periods: Optional[int] = None,
+    observers: Optional[List[str]] = None,
+    preferences: Optional[dict] = None,
+    ):
+    """Create a new scan task
+
+        Arguments:
+
+            name: Name of the new task
+            config_id: UUID of config to use by the task
+            target_id: UUID of target to be scanned
+            scanner_id: UUID of scanner to use for scanning the target
+            comment: Comment for the task
+            alterable: Whether the task should be alterable
+            alert_ids: List of UUIDs for alerts to be applied to the task
+            hosts_ordering: The order hosts are scanned in
+            schedule_id: UUID of a schedule when the task should be run.
+            schedule_periods: A limit to the number of times the task will be scheduled, or 0 for no limit
+            observers: List of names or ids of users which should be allowed to observe this task
+            preferences: Name/Value pairs of scanner preferences.
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.create_task(name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,alert_ids=alert_ids,comment=comment,schedule_periods=schedule_periods,observers=observers,preferences=preferences), media_type="application/xml")
 
 ### REPORT DATA ###
 
