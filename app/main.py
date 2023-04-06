@@ -255,6 +255,48 @@ async def create_task(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.create_task(name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,alert_ids=alert_ids,comment=comment,schedule_periods=schedule_periods,observers=observers,preferences=preferences), media_type="application/xml")
 
+@app.put("/modify/task", tags=["task"])
+async def modify_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str,
+    name: Optional[str] = None,
+    config_id: Optional[str] = None,
+    target_id: Optional[str] = None,
+    scanner_id: Optional[str] = None,
+    alterable: Optional[bool] = None,
+    hosts_ordering: Optional[HostsOrdering] = None,
+    schedule_id: Optional[str] = None,
+    schedule_periods: Optional[int] = None,
+    comment: Optional[str] = None,
+    alert_ids: Optional[List[str]] = None,
+    observers: Optional[List[str]] = None,
+    preferences: Optional[dict] = None,
+    ):
+    """Modifies an existing task.
+
+        Arguments:
+
+            task_id: UUID of task to modify.
+            name: The name of the task.
+            config_id: UUID of scan config to use by the task
+            target_id: UUID of target to be scanned
+            scanner_id: UUID of scanner to use for scanning the target
+            comment: The comment on the task.
+            alert_ids: List of UUIDs for alerts to be applied to the task
+            hosts_ordering: The order hosts are scanned in
+            schedule_id: UUID of a schedule when the task should be run.
+            schedule_periods: A limit to the number of times the task will be scheduled, or 0 for no limit.
+            observers: List of names or ids of users which should be allowed to observe this task
+            preferences: Name/Value pairs of scanner preferences.
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.modify_task(task_id=task_id,name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,schedule_periods=schedule_periods,comment=comment,alert_ids=alert_ids,observers=observers,preferences=preferences), media_type="application/xml")
+
 ### REPORT DATA ###
 
 @app.get("/get/report", tags=["report"])
