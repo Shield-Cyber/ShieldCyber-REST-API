@@ -96,6 +96,27 @@ async def is_authenticated(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.is_authenticated(), media_type="application/xml")
 
+@app.get("/modify_auth", tags=["auth"])
+async def modify_auth(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    group_name: str,
+    auth_conf_settings: dict
+):
+    """Modifies an existing auth.
+
+        Arguments:
+        
+            group_name: Name of the group to be modified.
+            auth_conf_settings: The new auth config.
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.modify_auth(group_name=group_name, auth_conf_settings=auth_conf_settings), media_type="application/xml")
+
 ### VERSION DATA ###
 
 @app.get("/get/version", tags=["version"])
