@@ -454,7 +454,48 @@ async def get_reports(
     with Gmp(connection=CONNECTION) as gmp:
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_reports(filter_string=filter_string,filter_id=filter_id,note_details=note_details,override_details=override_details,ignore_pagination=ignore_pagination,details=details), media_type="application/xml")    
+        return Response(content=gmp.get_reports(filter_string=filter_string,filter_id=filter_id,note_details=note_details,override_details=override_details,ignore_pagination=ignore_pagination,details=details), media_type="application/xml")
+
+@app.get("/get/report/format", tags=["report"])
+async def get_report_format(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    report_format_id: Union[str, ReportFormatType]
+):
+    """Request a single report format
+
+        Arguments:
+
+            report_format_id: UUID of an existing report format or ReportFormatType (enum)
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.get_report_format(report_format_id=report_format_id), media_type="application/xml")
+
+@app.get("/get/report/formats", tags=["report"])
+async def get_report_formats(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    filter_string: Optional[str] = None,
+    filter_id: Optional[str] = None,
+    trash: Optional[bool] = None,
+    alerts: Optional[bool] = None,
+    params: Optional[bool] = None,
+    details: Optional[bool] = None,
+):
+    """Request a single report format
+
+        Arguments:
+
+            report_format_id: UUID of an existing report format or ReportFormatType (enum)
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.get_report_formats(filter_string=filter_string,filter_id=filter_id,trash=trash,alerts=alerts,params=params,details=details), media_type="application/xml")
 
 ### USER DATA ###
 
