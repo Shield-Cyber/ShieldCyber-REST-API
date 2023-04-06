@@ -297,6 +297,44 @@ async def modify_task(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.modify_task(task_id=task_id,name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,schedule_periods=schedule_periods,comment=comment,alert_ids=alert_ids,observers=observers,preferences=preferences), media_type="application/xml")
 
+@app.post("/stop/task", tags=["task"])
+async def stop_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str
+    ):
+    """Stop an existing running task
+
+        Arguments:
+
+            task_id: UUID of the task to be stopped
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.stop_task(task_id=task_id), media_type="application/xml")
+
+@app.post("/start/task", tags=["task"])
+async def start_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str
+    ):
+    """Start an existing task
+
+        Arguments:
+
+            task_id: UUID of the task to be started
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.start_task(task_id=task_id), media_type="application/xml")
+
 ### REPORT DATA ###
 
 @app.get("/get/report", tags=["report"])
