@@ -231,3 +231,25 @@ async def get_user_setting(
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_user_setting(setting_id=setting_id), media_type="application/xml")
+    
+@app.get("/get/users", tags=["user"])
+async def get_users(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    filter_string: Optional[str] = None,
+    filter_id: Optional[str] = None,
+    ):
+    """Request a list of users
+
+        Arguments:
+
+            filter_string: Filter term to use for the query
+            filter_id: UUID of an existing filter to use for the query
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.get_users(filter_id=filter_id, filter_string=filter_string), media_type="application/xml")
+    
