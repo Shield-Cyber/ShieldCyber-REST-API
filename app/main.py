@@ -195,6 +195,24 @@ async def get_task(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_task(task_id), media_type="application/xml")
 
+@app.delete("/delete/task", tags=["task"])
+async def delete_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str,
+    ultimate: Optional[bool] = False
+    ):
+    """Deletes an existing task
+
+        Arguments:
+
+            task_id: UUID of the task to be deleted.
+            ultimate: Whether to remove entirely, or to the trashcan.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.delete_task(task_id=task_id, ultimate=ultimate), media_type="application/xml")
+
 ### REPORT DATA ###
 
 @app.get("/get/report", tags=["report"])
