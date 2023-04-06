@@ -62,8 +62,8 @@ services:
     image: greenbone/gvmd:stable
     restart: on-failure
     environment:
-      - PASSWORD=test123 # SET ADMIN PASSWORD
-      - HTTPS=true # SET HHTPS TRUE : DEFAULTS TO FALSE
+      - USERNAME=${USERNAME:-admin} # DEFAULT USERNAME ADMIN
+      - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
     volumes:
       - gvmd_data_vol:/var/lib/gvm
       - scap_data_vol:/var/lib/gvm/scap-data/
@@ -171,18 +171,19 @@ services:
       - ospd-openvas
 
 # Rest API
-
   rest-api:
     build: .
     restart: on-failure
     ports:
       - 8000:8000
+    environment:
+      - USERNAME=${USERNAME:-admin} # DEFAULT USERNAME ADMIN
+      - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
+      - VERSION=0.1.0
     depends_on:
       - gvmd
     volumes:
       - gvmd_socket_vol:/run/gvmd
-
-#
 
 volumes:
   gpg_data_vol:
