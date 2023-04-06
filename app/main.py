@@ -1,7 +1,8 @@
 from .auth import *
 from fastapi import FastAPI, Depends, HTTPException, status, Response
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional, Union, List
 from gvm.protocols.gmpv208.entities.report_formats import ReportFormatType
+from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
 from gvm.connections import UnixSocketConnection
 from gvm.protocols.gmp import Gmp
 import logging
@@ -94,9 +95,9 @@ async def is_authenticated(
     with Gmp(connection=CONNECTION) as gmp:
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.is_authenticated(), media_type="application/xml")
+        return gmp.is_authenticated()
 
-@app.get("/modify_auth", tags=["auth"])
+@app.patch("/modify_auth", tags=["auth"])
 async def modify_auth(
     current_user: Annotated[User, Depends(get_current_active_user)],
     group_name: str,
@@ -105,7 +106,7 @@ async def modify_auth(
     """Modifies an existing auth.
 
         Arguments:
-        
+
             group_name: Name of the group to be modified.
             auth_conf_settings: The new auth config.
 
@@ -129,7 +130,23 @@ async def get_version(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_version(), media_type="application/xml")
+    
+@app.get("/get/protocol/version", tags=["version"])
+async def get_protocol_version(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    """Determine the Greenbone Management Protocol (gmp) version used by python-gvm version.
+
+        Returns:
+            tuple: Implemented version of the Greenbone Management Protocol
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return gmp.get_protocol_version()
 
 ### TASK DATA ###
 
@@ -178,6 +195,204 @@ async def get_task(
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_task(task_id), media_type="application/xml")
+
+@app.delete("/delete/task", tags=["task"])
+async def delete_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str,
+    ultimate: Optional[bool] = False
+    ):
+    """Deletes an existing task
+
+        Arguments:
+
+            task_id: UUID of the task to be deleted.
+            ultimate: Whether to remove entirely, or to the trashcan.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.delete_task(task_id=task_id, ultimate=ultimate), media_type="application/xml")
+
+@app.post("/create/task", tags=["task"])
+async def create_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    name: str,
+    config_id: str,
+    target_id: str,
+    scanner_id: str,
+    alterable: Optional[bool] = None,
+    hosts_ordering: Optional[HostsOrdering] = None,
+    schedule_id: Optional[str] = None,
+    alert_ids: Optional[List[str]] = None,
+    comment: Optional[str] = None,
+    schedule_periods: Optional[int] = None,
+    observers: Optional[List[str]] = None,
+    preferences: Optional[dict] = None,
+    ):
+    """Create a new scan task
+
+        Arguments:
+
+            name: Name of the new task
+            config_id: UUID of config to use by the task
+            target_id: UUID of target to be scanned
+            scanner_id: UUID of scanner to use for scanning the target
+            comment: Comment for the task
+            alterable: Whether the task should be alterable
+            alert_ids: List of UUIDs for alerts to be applied to the task
+            hosts_ordering: The order hosts are scanned in
+            schedule_id: UUID of a schedule when the task should be run.
+            schedule_periods: A limit to the number of times the task will be scheduled, or 0 for no limit
+            observers: List of names or ids of users which should be allowed to observe this task
+            preferences: Name/Value pairs of scanner preferences.
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.create_task(name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,alert_ids=alert_ids,comment=comment,schedule_periods=schedule_periods,observers=observers,preferences=preferences), media_type="application/xml")
+
+@app.patch("/modify/task", tags=["task"])
+async def modify_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str,
+    name: Optional[str] = None,
+    config_id: Optional[str] = None,
+    target_id: Optional[str] = None,
+    scanner_id: Optional[str] = None,
+    alterable: Optional[bool] = None,
+    hosts_ordering: Optional[HostsOrdering] = None,
+    schedule_id: Optional[str] = None,
+    schedule_periods: Optional[int] = None,
+    comment: Optional[str] = None,
+    alert_ids: Optional[List[str]] = None,
+    observers: Optional[List[str]] = None,
+    preferences: Optional[dict] = None,
+    ):
+    """Modifies an existing task.
+
+        Arguments:
+
+            task_id: UUID of task to modify.
+            name: The name of the task.
+            config_id: UUID of scan config to use by the task
+            target_id: UUID of target to be scanned
+            scanner_id: UUID of scanner to use for scanning the target
+            comment: The comment on the task.
+            alert_ids: List of UUIDs for alerts to be applied to the task
+            hosts_ordering: The order hosts are scanned in
+            schedule_id: UUID of a schedule when the task should be run.
+            schedule_periods: A limit to the number of times the task will be scheduled, or 0 for no limit.
+            observers: List of names or ids of users which should be allowed to observe this task
+            preferences: Name/Value pairs of scanner preferences.
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.modify_task(task_id=task_id,name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,schedule_periods=schedule_periods,comment=comment,alert_ids=alert_ids,observers=observers,preferences=preferences), media_type="application/xml")
+
+@app.post("/stop/task", tags=["task"])
+async def stop_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str
+    ):
+    """Stop an existing running task
+
+        Arguments:
+
+            task_id: UUID of the task to be stopped
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.stop_task(task_id=task_id), media_type="application/xml")
+
+@app.post("/start/task", tags=["task"])
+async def start_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str
+    ):
+    """Start an existing task
+
+        Arguments:
+
+            task_id: UUID of the task to be started
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.start_task(task_id=task_id), media_type="application/xml")
+
+@app.post("/clone/task", tags=["task"])
+async def clone_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str
+    ):
+    """Clone an existing task
+
+        Arguments:
+
+            task_id: UUID of existing task to clone from
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.clone_task(task_id=task_id), media_type="application/xml")
+
+@app.patch("/move/task", tags=["task"])
+async def move_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str,
+    slave_id: Optional[str] = None
+    ):
+    """Move an existing task to another GMP slave scanner or the master
+
+        Arguments:
+
+            task_id: UUID of the task to be moved
+            slave_id: UUID of slave to reassign the task to, empty for master.
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.move_task(task_id=task_id, slave_id=slave_id), media_type="application/xml")
+
+@app.post("/resume/task", tags=["task"])
+async def resume_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str,
+    ):
+    """Resume an existing stopped task
+
+        Arguments:
+
+            task_id: UUID of the task to be resumed
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.resume_task(task_id=task_id), media_type="application/xml")
 
 ### REPORT DATA ###
 
