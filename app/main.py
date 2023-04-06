@@ -375,6 +375,25 @@ async def move_task(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.move_task(task_id=task_id, slave_id=slave_id), media_type="application/xml")
 
+@app.post("/resume/task", tags=["task"])
+async def resume_task(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    task_id: str,
+    ):
+    """Resume an existing stopped task
+
+        Arguments:
+
+            task_id: UUID of the task to be resumed
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.resume_task(task_id=task_id), media_type="application/xml")
+
 ### REPORT DATA ###
 
 @app.get("/get/report", tags=["report"])
