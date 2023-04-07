@@ -574,6 +574,25 @@ async def import_report(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.import_report(report=report,task_id=task_id,in_assets=in_assets), media_type="application/xml")
 
+@app.post("/import/report/format", tags=["report"])
+async def import_report_format(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    report_format: str
+):
+    """Import a report format from XML
+
+        Arguments:
+
+            report_format: Report format XML as string to import. This XML must contain a :code:`<get_report_formats_response>` root element.
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.import_report_format(report_format=report_format), media_type="application/xml")
+
 ### USER DATA ###
 
 @app.get("/get/user", tags=["user"])
