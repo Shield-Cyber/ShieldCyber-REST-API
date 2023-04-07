@@ -516,7 +516,7 @@ async def get_report_formats(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.clone_report_format(report_format_id=report_format_id), media_type="application/xml")
 
-@app.post("/delete/report", tags=["report"])
+@app.delete("/delete/report", tags=["report"])
 async def delete_report(
     current_user: Annotated[User, Depends(get_current_active_user)],
     report_id: str
@@ -532,7 +532,7 @@ async def delete_report(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.delete_report(report_id=report_id), media_type="application/xml")
 
-@app.post("/delete/report/format", tags=["report"])
+@app.delete("/delete/report/format", tags=["report"])
 async def delete_report(
     current_user: Annotated[User, Depends(get_current_active_user)],
     report_format_id: Union[str, ReportFormatType]
@@ -550,6 +550,29 @@ async def delete_report(
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.delete_report_format(report_format_id=report_format_id), media_type="application/xml")
+
+@app.post("/import/report", tags=["report"])
+async def import_report(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    report: str,
+    task_id: Optional[str] = None,
+    in_assets: Optional[bool] = None,
+):
+    """Import a Report from XML
+
+        Arguments:
+
+            report: Report XML as string to import. This XML must contain a :code:`<report>` root element.
+            task_id: UUID of task to import report to
+            in_asset: Whether to create or update assets using the report
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.import_report(report=report,task_id=task_id,in_assets=in_assets), media_type="application/xml")
 
 ### USER DATA ###
 
