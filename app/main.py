@@ -516,8 +516,8 @@ async def get_report_formats(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.clone_report_format(report_format_id=report_format_id), media_type="application/xml")
 
-@app.post("/clone/report/formats", tags=["report"])
-async def get_report_formats(
+@app.post("/delete/report", tags=["report"])
+async def delete_report(
     current_user: Annotated[User, Depends(get_current_active_user)],
     report_id: str
 ):
