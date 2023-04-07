@@ -52,6 +52,7 @@ async def authenticate(
 ):
     user = authenticate_user(users_db, form_data.username, form_data.password)
     if not user:
+        logger.warning(f"user '{form_data.username}' has failed authentication")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -61,6 +62,7 @@ async def authenticate(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
+    logger.info(f"user '{form_data.username}' has passed authentication")
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/describe_auth", tags=["auth"])
