@@ -649,6 +649,36 @@ async def verify_report_format(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.verify_report_format(report_format_id=report_format_id), media_type="application/xml")
 
+@app.get("/get/system/reports", tags=["report"])
+async def get_system_reports(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    name: Optional[str] = None,
+    duration: Optional[int] = None,
+    start_time: Optional[str] = None,
+    end_time: Optional[str] = None,
+    brief: Optional[bool] = None,
+    slave_id: Optional[str] = None
+):
+    """Verify an existing report format
+
+        Verifies the trust level of an existing report format. It will be
+        checked whether the signature of the report format currently matches the
+        report format. This includes the script and files used to generate
+        reports of this format. It is *not* verified if the report format works
+        as expected by the user.
+
+        Arguments:
+
+            report_format_id: UUID of the report format to be verified or ReportFormatType (enum)
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.get_system_reports(name=name,duration=duration,start_time=start_time,end_time=end_time,brief=brief,slave_id=slave_id), media_type="application/xml")
+
 ### USER DATA ###
 
 @app.get("/get/user", tags=["user"])
