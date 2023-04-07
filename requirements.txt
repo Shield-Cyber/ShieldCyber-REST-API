@@ -1,3 +1,6 @@
 python-gvm
 fastapi
 python-multipart
+uvicorn[standard]
+passlib[bcrypt]
+python-jose[cryptography]
