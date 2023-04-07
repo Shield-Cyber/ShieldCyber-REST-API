@@ -497,6 +497,41 @@ async def get_report_formats(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_report_formats(filter_string=filter_string,filter_id=filter_id,trash=trash,alerts=alerts,params=params,details=details), media_type="application/xml")
 
+@app.post("/clone/report/formats", tags=["report"])
+async def get_report_formats(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    report_format_id: Union[str, ReportFormatType]
+):
+    """Clone a report format from an existing one
+
+        Arguments:
+
+            report_format_id: UUID of the existing report format or ReportFormatType (enum)
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.clone_report_format(report_format_id=report_format_id), media_type="application/xml")
+
+@app.post("/clone/report/formats", tags=["report"])
+async def get_report_formats(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    report_id: str
+):
+    """Deletes an existing report
+
+        Arguments:
+
+            report_id: UUID of the report to be deleted.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.delete_report(report_id=report_id), media_type="application/xml")
+
 ### USER DATA ###
 
 @app.get("/get/user", tags=["user"])
