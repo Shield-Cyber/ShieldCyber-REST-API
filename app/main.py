@@ -593,6 +593,35 @@ async def import_report_format(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.import_report_format(report_format=report_format), media_type="application/xml")
 
+@app.patch("/modify/report/format", tags=["report"])
+async def modify_report_format(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    report_format_id: Optional[Union[str, ReportFormatType]] = None,
+    active: Optional[bool] = None,
+    name: Optional[str] = None,
+    summary: Optional[str] = None,
+    param_name: Optional[str] = None,
+    param_value: Optional[str] = None,
+):
+    """Modifies an existing report format.
+
+        Arguments:
+
+            report_format_id: UUID of report format to modify or ReportFormatType (enum)
+            active: Whether the report format is active.
+            name: The name of the report format.
+            summary: A summary of the report format.
+            param_name: The name of the param.
+            param_value: The value of the param.
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.modify_report_format(report_format_id=report_format_id,active=active,name=name,summary=summary,param_name=param_name,param_value=param_value), media_type="application/xml")
+
 ### USER DATA ###
 
 @app.get("/get/user", tags=["user"])
