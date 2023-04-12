@@ -4,6 +4,7 @@ from typing import Annotated, Optional, Union, List
 from gvm.protocols.gmpv208.entities.report_formats import ReportFormatType
 from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
 from gvm.connections import UnixSocketConnection
+from contextlib import asynccontextmanager
 from gvm.protocols.gmp import Gmp
 import logging
 import time
@@ -22,17 +23,8 @@ CONNECTION = None
 DESCRIPTION = """This is a translation API that calls the XML API calls on the local
 Greenbone Vulnerability Scanner and converts them to REST API calls for easier use by most systems."""
 
-# Main App / API
-app = FastAPI(
-    title="Greenbone Rest API",
-    description=DESCRIPTION,
-    version=os.getenv("VERSION"),
-    swagger_ui_parameters={"tagsSorter": "alpha", "operationsSorter": "alpha"}
-)
-
-# Pre Startup Connection to gvmd Socket
-@app.on_event("startup")
-async def startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     while True:
         try:
             global CONNECTION
@@ -43,6 +35,16 @@ async def startup():
         except:
             logger.warning("waiting 1 second for gvmd socket")
             time.sleep(1)
+    yield
+
+# Main App / API
+app = FastAPI(
+    title="Greenbone Rest API",
+    description=DESCRIPTION,
+    version=os.getenv("VERSION"),
+    swagger_ui_parameters={"tagsSorter": "alpha", "operationsSorter": "alpha"},
+    lifespan=lifespan
+)
 
 ### AUTH DATA ###
 
