@@ -1,0 +1,35 @@
+version: 1
+
+formatters:
+  form:
+    format: "\n%(asctime)s: %(name)s\n%(levelname)s: %(message)s\n"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+handlers:
+
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: form
+    stream: ext://sys.stdout
+  latest:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: form
+    when: 'midnight'
+    backupCount: 30
+    filename: /logs/latest.log
+  debug:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: DEBUG
+    formatter: form
+    when: 'midnight'
+    backupCount: 2
+    filename: /logs/debug.log
+
+loggers:
+
+  uvicorn:
+    level: DEBUG
+    handlers: [console, latest, debug]
+    propagate: no
