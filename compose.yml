@@ -183,6 +183,7 @@ services:
       - gvmd
     volumes:
       - gvmd_socket_vol:/run/gvmd
+      - api_logs_vol:/logs
 
 volumes:
   gpg_data_vol:
@@ -197,3 +198,4 @@ volumes:
   gvmd_socket_vol:
   ospd_openvas_socket_vol:
   redis_socket_vol:
+  api_logs_vol:
