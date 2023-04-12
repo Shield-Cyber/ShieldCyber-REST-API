@@ -6,15 +6,16 @@ from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
 from gvm.connections import UnixSocketConnection
 from contextlib import asynccontextmanager
 from gvm.protocols.gmp import Gmp
+from .xml import root
 import logging
 import time
 import os
 
 # Logging
-logger = logging.getLogger("uvicorn")
+LOGGER = logging.getLogger("uvicorn")
 
 # Socket Path
-path = '/run/gvmd/gvmd.sock'
+PATH = '/run/gvmd/gvmd.sock'
 
 # Socket Connection
 CONNECTION = None
@@ -28,12 +29,12 @@ async def lifespan(app: FastAPI):
     while True:
         try:
             global CONNECTION
-            CONNECTION = UnixSocketConnection(path=path)
+            CONNECTION = UnixSocketConnection(path=PATH)
             with Gmp(connection=CONNECTION) as gmp:
-                logger.info(gmp.get_version())
+                LOGGER.info(gmp.get_version())
                 break
         except:
-            logger.warning("waiting 1 second for gvmd socket")
+            LOGGER.warning("waiting 1 second for gvmd socket")
             time.sleep(1)
     yield
 
@@ -54,7 +55,7 @@ async def authenticate(
 ):
     user = authenticate_user(users_db, form_data.username, form_data.password)
     if not user:
-        logger.warning(f"user '{form_data.username}' has failed authentication")
+        LOGGER.warning(f"user '{form_data.username}' has failed authentication")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -64,7 +65,7 @@ async def authenticate(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    logger.info(f"user '{form_data.username}' has passed authentication")
+    LOGGER.info(f"user '{form_data.username}' has passed authentication")
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/describe_auth", tags=["auth"])
