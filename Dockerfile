@@ -17,4 +17,4 @@ ENV VERSION=0.1.0
 
 COPY . /opt
 
-CMD uvicorn app.main:app --host 0.0.0.0 --ssl-keyfile=./certs/key.pem --ssl-certfile=./certs/cert.pem
+CMD uvicorn app.main:app --host 0.0.0.0 --ssl-keyfile=./certs/key.pem --ssl-certfile=./certs/cert.pem --log-config ./conf/log.yaml
