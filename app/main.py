@@ -15,7 +15,7 @@ import os
 LOGGER = logging.getLogger("uvicorn")
 
 # Socket Path
-PATH = '/run/gvmd/gvmd.sock'
+SOCKET = '/run/gvmd/gvmd.sock'
 
 # Socket Connection
 CONNECTION = None
@@ -26,17 +26,30 @@ Greenbone Vulnerability Scanner and converts them to REST API calls for easier u
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    LOGGER.info(f"System Starting...")
+    counter = 0
     while True:
+        if counter >= 60:
+            LOGGER.critical("Connection to gvmd socket took too long. Forcing system exit.")
+            raise SystemExit(1)
         try:
             global CONNECTION
-            CONNECTION = UnixSocketConnection(path=PATH)
+            CONNECTION = UnixSocketConnection(path=SOCKET)
             with Gmp(connection=CONNECTION) as gmp:
-                LOGGER.info(gmp.get_version())
+                version = root(gmp.get_version())
+                if version.status != 200:
+                    LOGGER.critical(f"Version check recieved non-200 response. Response: {version.data}")
+                    raise SystemExit(2)
+                LOGGER.info(f"{version.status}, {version.status_text}. Startup complete and took {counter} second(s).")
                 break
+        except SystemExit:
+            raise SystemExit(2)
         except:
-            LOGGER.warning("waiting 1 second for gvmd socket")
+            LOGGER.warning("Wating 1 second for gvmd socket.")
             time.sleep(1)
+            counter += 1
     yield
+    LOGGER.info("System shutting down...")
 
 # Main App / API
 app = FastAPI(
@@ -62,8 +75,7 @@ async def authenticate(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires
     )
     LOGGER.info(f"user '{form_data.username}' has passed authentication")
     return {"access_token": access_token, "token_type": "bearer"}
