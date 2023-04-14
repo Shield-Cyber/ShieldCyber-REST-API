@@ -4,16 +4,18 @@ from typing import Annotated, Optional, Union, List
 from gvm.protocols.gmpv208.entities.report_formats import ReportFormatType
 from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
 from gvm.connections import UnixSocketConnection
+from contextlib import asynccontextmanager
 from gvm.protocols.gmp import Gmp
+from .xml import root
 import logging
 import time
 import os
 
 # Logging
-logger = logging.getLogger("uvicorn")
+LOGGER = logging.getLogger("uvicorn")
 
 # Socket Path
-path = '/run/gvmd/gvmd.sock'
+SOCKET = '/run/gvmd/gvmd.sock'
 
 # Socket Connection
 CONNECTION = None
@@ -22,27 +24,41 @@ CONNECTION = None
 DESCRIPTION = """This is a translation API that calls the XML API calls on the local
 Greenbone Vulnerability Scanner and converts them to REST API calls for easier use by most systems."""
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    LOGGER.info(f"System Starting...")
+    counter = 0
+    while True:
+        if counter >= 60:
+            LOGGER.critical("Connection to gvmd socket took too long. Forcing system exit.")
+            raise SystemExit(1)
+        try:
+            global CONNECTION
+            CONNECTION = UnixSocketConnection(path=SOCKET)
+            with Gmp(connection=CONNECTION) as gmp:
+                version = root(gmp.get_version())
+                if version.status != 200:
+                    LOGGER.critical(f"Version check recieved non-200 response. Response: {version.data}")
+                    raise SystemExit(2)
+                LOGGER.info(f"{version.status}, {version.status_text}. Startup complete and took {counter} second(s).")
+                break
+        except SystemExit:
+            raise SystemExit(2)
+        except:
+            LOGGER.warning("Wating 1 second for gvmd socket.")
+            time.sleep(1)
+            counter += 1
+    yield
+    LOGGER.info("System shutting down...")
+
 # Main App / API
 app = FastAPI(
     title="Greenbone Rest API",
     description=DESCRIPTION,
     version=os.getenv("VERSION"),
-    swagger_ui_parameters={"tagsSorter": "alpha", "operationsSorter": "alpha"}
+    swagger_ui_parameters={"tagsSorter": "alpha", "operationsSorter": "alpha"},
+    lifespan=lifespan
 )
-
-# Pre Startup Connection to gvmd Socket
-@app.on_event("startup")
-async def startup():
-    while True:
-        try:
-            global CONNECTION
-            CONNECTION = UnixSocketConnection(path=path)
-            with Gmp(connection=CONNECTION) as gmp:
-                logger.info(gmp.get_version())
-                break
-        except:
-            logger.warning("waiting 1 second for gvmd socket")
-            time.sleep(1)
 
 ### AUTH DATA ###
 
@@ -52,17 +68,16 @@ async def authenticate(
 ):
     user = authenticate_user(users_db, form_data.username, form_data.password)
     if not user:
-        logger.warning(f"user '{form_data.username}' has failed authentication")
+        LOGGER.warning(f"user '{form_data.username}' has failed authentication")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires
     )
-    logger.info(f"user '{form_data.username}' has passed authentication")
+    LOGGER.info(f"user '{form_data.username}' has passed authentication")
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/describe_auth", tags=["auth"])
