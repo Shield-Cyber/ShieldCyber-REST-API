@@ -62,7 +62,7 @@ services:
     image: greenbone/gvmd:stable
     restart: on-failure
     environment:
-      - USERNAME=${USERNAME:-admin} # DEFAULT USERNAME ADMIN
+      - USERNAME=admin # DEFAULT USERNAME 'admin'
       - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
     volumes:
       - gvmd_data_vol:/var/lib/gvm
