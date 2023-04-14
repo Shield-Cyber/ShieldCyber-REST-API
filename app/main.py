@@ -12,7 +12,7 @@ import time
 import os
 
 # Logging
-LOGGER = logging.getLogger("uvicorn")
+LOGGER = logging.getLogger("api")
 
 # Socket Path
 SOCKET = '/run/gvmd/gvmd.sock'

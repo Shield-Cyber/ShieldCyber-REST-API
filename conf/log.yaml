@@ -9,7 +9,7 @@ handlers:
 
   console:
     class: logging.StreamHandler
-    level: DEBUG
+    level: INFO
     formatter: form
     stream: ext://sys.stdout
   latest:
@@ -30,6 +30,11 @@ handlers:
 loggers:
 
   uvicorn:
+    level: INFO
+    handlers: [console, latest, debug]
+    propagate: no
+  
+  api:
     level: DEBUG
     handlers: [console, latest, debug]
     propagate: no
