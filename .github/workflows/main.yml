@@ -13,6 +13,7 @@ jobs:
             fetch-depth: 0
         - uses: paulhatch/semantic-version@v5.0.2
           with:
+            tag_prefix: ''
             major_pattern: "Major"
             minor_pattern: "Minor"
             version_format: "${major}.${minor}.${patch}-prerelease${increment}"
