@@ -788,3 +788,21 @@ async def get_feeds(
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_feeds(), media_type="application/xml")
+
+@app.get("/get/feed", tags=["feeds"])
+async def get_feed(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    feed_type: Optional[FeedType]
+    ):
+    """Request a single feed
+
+        Arguments:
+            feed_type: Type of single feed to get: NVT, CERT or SCAP
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.get_feed(), media_type="application/xml")
