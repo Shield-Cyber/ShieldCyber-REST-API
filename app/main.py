@@ -774,7 +774,9 @@ async def get_users(
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_users(filter_id=filter_id, filter_string=filter_string), media_type="application/xml")
-    
+
+### FEED DATA ###
+
 @app.get("/get/feeds", tags=["feeds"])
 async def get_feeds(
     current_user: Annotated[User, Depends(get_current_active_user)]
