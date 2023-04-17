@@ -3,6 +3,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, Response
 from typing import Annotated, Optional, Union, List
 from gvm.protocols.gmpv208.entities.report_formats import ReportFormatType
 from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
+from gvm.protocols.gmpv208.system.feed import FeedType
 from gvm.connections import UnixSocketConnection
 from contextlib import asynccontextmanager
 from gvm.protocols.gmp import Gmp
@@ -774,3 +775,34 @@ async def get_users(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_users(filter_id=filter_id, filter_string=filter_string), media_type="application/xml")
     
+@app.get("/get/feeds", tags=["feeds"])
+async def get_feeds(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+    ):
+    """Request the list of feeds
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.get_feeds(), media_type="application/xml")
+
+@app.get("/get/feed", tags=["feeds"])
+async def get_feed(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    feed_type: Optional[FeedType]
+    ):
+    """Request a single feed
+
+        Arguments:
+            feed_type: Type of single feed to get: NVT, CERT or SCAP
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.get_feed(feed_type=feed_type), media_type="application/xml")
