@@ -805,4 +805,4 @@ async def get_feed(
     with Gmp(connection=CONNECTION) as gmp:
         if verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_feed(), media_type="application/xml")
+        return Response(content=gmp.get_feed(feed_type=feed_type), media_type="application/xml")
