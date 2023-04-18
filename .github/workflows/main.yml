@@ -3,20 +3,34 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v2
+        - name: Checkout
+          uses: actions/checkout@v2
           with:
             fetch-depth: 0
-        - uses: paulhatch/semantic-version@v5.0.2
+        - name: Get Version Tag
+          id: version
+          uses: paulhatch/semantic-version@v5.0.2
           with:
             tag_prefix: ''
             major_pattern: "Major"
             minor_pattern: "Minor"
             version_format: "${major}.${minor}.${patch}-prerelease${increment}"
+            # search_commit_body: true
             # If this is set to true, *every* commit will be treated as a new version.
             bump_each_commit: true
-            # The output method used to generate list of users, 'csv' or 'json'.
-            user_format_type: "csv"
+        - name: Create Release
+          uses: ncipollo/release-action@v1
+          with:
+            tag: ${{ steps.version.outputs.version_tag }}
+            name: Version ${{ steps.version.outputs.version_tag }}
+            generateReleaseNotes: true
+            draft: true
+            prerelease: true
+            # makeLatest: true
+            updateOnlyUnreleased: true
+            allowUpdates: true
