@@ -1,4 +1,4 @@
-from .auth import Auth, ACCESS_TOKEN_EXPIRE_MINUTES, users_db, PASSWORD, DB_PATH
+from .auth import Auth, ACCESS_TOKEN_EXPIRE_MINUTES, users_db, PASSWORD
 from .auth import LOGGER as AUTH_LOGGER
 from fastapi import FastAPI, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -10,7 +10,6 @@ from gvm.connections import UnixSocketConnection
 from contextlib import asynccontextmanager
 from gvm.protocols.gmp import Gmp
 from datetime import timedelta
-from pathlib import Path
 from .xml import root
 import logging
 import time
@@ -80,8 +79,7 @@ async def authenticate(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = Auth.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires
-    )
+    access_token = Auth.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
     LOGGER.info(f"user '{form_data.username}' has passed authentication")
     return {"access_token": access_token, "token_type": "bearer"}
 
