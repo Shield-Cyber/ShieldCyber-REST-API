@@ -1,5 +1,7 @@
-from .auth import Token, OAuth2PasswordRequestForm, authenticate_user, timedelta, ACCESS_TOKEN_EXPIRE_MINUTES, users_db, create_access_token, User, get_current_active_user, verify_password, PASSWORD
+from .auth import Auth, ACCESS_TOKEN_EXPIRE_MINUTES, users_db, PASSWORD, DB_PATH
+from .auth import LOGGER as AUTH_LOGGER
 from fastapi import FastAPI, Depends, HTTPException, status, Response
+from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated, Optional, Union, List
 from gvm.protocols.gmpv208.entities.report_formats import ReportFormatType
 from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
@@ -7,6 +9,8 @@ from gvm.protocols.gmpv208.system.feed import FeedType
 from gvm.connections import UnixSocketConnection
 from contextlib import asynccontextmanager
 from gvm.protocols.gmp import Gmp
+from datetime import timedelta
+from pathlib import Path
 from .xml import root
 import logging
 import time
@@ -63,11 +67,11 @@ app = FastAPI(
 
 ### AUTH DATA ###
 
-@app.post("/authenticate", response_model=Token, tags=["auth"])
+@app.post("/authenticate", response_model=Auth.Token, tags=["auth"])
 async def authenticate(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
-    user = authenticate_user(users_db, form_data.username, form_data.password)
+    user = Auth.authenticate_user(users_db, form_data.username, form_data.password)
     if not user:
         LOGGER.warning(f"user '{form_data.username}' has failed authentication")
         raise HTTPException(
@@ -76,14 +80,14 @@ async def authenticate(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires
+    access_token = Auth.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires
     )
     LOGGER.info(f"user '{form_data.username}' has passed authentication")
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/describe_auth", tags=["auth"])
 async def describe_auth(
-    current_user: Annotated[User, Depends(get_current_active_user)]
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)]
 ):
     """Describe authentication methods
 
@@ -93,13 +97,13 @@ async def describe_auth(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.describe_auth(), media_type="application/xml")
 
 @app.get("/is_authenticated", tags=["auth"])
 async def is_authenticated(
-    current_user: Annotated[User, Depends(get_current_active_user)]
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)]
 ):
     """Checks if the user is authenticated
 
@@ -111,13 +115,13 @@ async def is_authenticated(
             established.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return gmp.is_authenticated()
 
 @app.patch("/modify_auth", tags=["auth"])
 async def modify_auth(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     group_name: str,
     auth_conf_settings: dict
 ):
@@ -132,7 +136,7 @@ async def modify_auth(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.modify_auth(group_name=group_name, auth_conf_settings=auth_conf_settings), media_type="application/xml")
 
@@ -140,7 +144,7 @@ async def modify_auth(
 
 @app.get("/get/version", tags=["version"])
 async def get_version(
-    current_user: Annotated[User, Depends(get_current_active_user)]
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)]
 ):
     """Get the Greenbone Vulnerability Manager Protocol version used by the remote gvmd.
 
@@ -148,13 +152,13 @@ async def get_version(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_version(), media_type="application/xml")
     
 @app.get("/get/protocol/version", tags=["version"])
 async def get_protocol_version(
-    current_user: Annotated[User, Depends(get_current_active_user)]
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)]
 ):
     """Determine the Greenbone Management Protocol (gmp) version used by python-gvm version.
 
@@ -162,7 +166,7 @@ async def get_protocol_version(
             tuple: Implemented version of the Greenbone Management Protocol
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return gmp.get_protocol_version()
 
@@ -170,7 +174,7 @@ async def get_protocol_version(
 
 @app.get("/get/tasks", tags=["task"])
 async def get_tasks(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     filter_string: Optional[str] = None,
     filter_id: Optional[str] = None,
     trash: Optional[bool] = None,
@@ -191,13 +195,13 @@ async def get_tasks(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_tasks(filter_string=filter_string, filter_id=filter_id, trash=trash, details=details, schedules_only=schedules_only), media_type="application/xml")
 
 @app.get("/get/task", tags=["task"])
 async def get_task(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str
     ):
     """Request a single task
@@ -210,13 +214,13 @@ async def get_task(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_task(task_id), media_type="application/xml")
 
 @app.delete("/delete/task", tags=["task"])
 async def delete_task(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str,
     ultimate: Optional[bool] = False
     ):
@@ -228,13 +232,13 @@ async def delete_task(
             ultimate: Whether to remove entirely, or to the trashcan.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.delete_task(task_id=task_id, ultimate=ultimate), media_type="application/xml")
 
 @app.post("/create/task", tags=["task"])
 async def create_task(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     name: str,
     config_id: str,
     target_id: str,
@@ -269,13 +273,13 @@ async def create_task(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.create_task(name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,alert_ids=alert_ids,comment=comment,schedule_periods=schedule_periods,observers=observers,preferences=preferences), media_type="application/xml")
 
 @app.patch("/modify/task", tags=["task"])
 async def modify_task(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str,
     name: Optional[str] = None,
     config_id: Optional[str] = None,
@@ -311,13 +315,13 @@ async def modify_task(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.modify_task(task_id=task_id,name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,schedule_periods=schedule_periods,comment=comment,alert_ids=alert_ids,observers=observers,preferences=preferences), media_type="application/xml")
 
 @app.post("/stop/task", tags=["task"])
 async def stop_task(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str
     ):
     """Stop an existing running task
@@ -330,13 +334,13 @@ async def stop_task(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.stop_task(task_id=task_id), media_type="application/xml")
 
 @app.post("/start/task", tags=["task"])
 async def start_task(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str
     ):
     """Start an existing task
@@ -349,13 +353,13 @@ async def start_task(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.start_task(task_id=task_id), media_type="application/xml")
 
 @app.post("/clone/task", tags=["task"])
 async def clone_task(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str
     ):
     """Clone an existing task
@@ -368,13 +372,13 @@ async def clone_task(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.clone_task(task_id=task_id), media_type="application/xml")
 
 @app.patch("/move/task", tags=["task"])
 async def move_task(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str,
     slave_id: Optional[str] = None
     ):
@@ -389,13 +393,13 @@ async def move_task(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.move_task(task_id=task_id, slave_id=slave_id), media_type="application/xml")
 
 @app.post("/resume/task", tags=["task"])
 async def resume_task(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str,
     ):
     """Resume an existing stopped task
@@ -408,7 +412,7 @@ async def resume_task(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.resume_task(task_id=task_id), media_type="application/xml")
 
@@ -416,7 +420,7 @@ async def resume_task(
 
 @app.get("/get/report", tags=["report"])
 async def get_report(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_id: str,
     filter_string: Optional[str] = None,
     filter_id: Optional[str] = None,
@@ -441,13 +445,13 @@ async def get_report(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details), media_type="application/xml")    
 
 @app.get("/get/reports", tags=["report"])
 async def get_reports(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     filter_string: Optional[str] = None,
     filter_id: Optional[str] = None,
     note_details: Optional[bool] = None,
@@ -470,13 +474,13 @@ async def get_reports(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_reports(filter_string=filter_string,filter_id=filter_id,note_details=note_details,override_details=override_details,ignore_pagination=ignore_pagination,details=details), media_type="application/xml")
 
 @app.get("/get/report/format", tags=["report"])
 async def get_report_format(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_format_id: Union[str, ReportFormatType]
 ):
     """Request a single report format
@@ -488,13 +492,13 @@ async def get_report_format(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_report_format(report_format_id=report_format_id), media_type="application/xml")
 
 @app.get("/get/report/formats", tags=["report"])
 async def get_report_formats(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     filter_string: Optional[str] = None,
     filter_id: Optional[str] = None,
     trash: Optional[bool] = None,
@@ -511,13 +515,13 @@ async def get_report_formats(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_report_formats(filter_string=filter_string,filter_id=filter_id,trash=trash,alerts=alerts,params=params,details=details), media_type="application/xml")
 
 @app.post("/clone/report/formats", tags=["report"])
 async def get_report_formats(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_format_id: Union[str, ReportFormatType]
 ):
     """Clone a report format from an existing one
@@ -530,13 +534,13 @@ async def get_report_formats(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.clone_report_format(report_format_id=report_format_id), media_type="application/xml")
 
 @app.delete("/delete/report", tags=["report"])
 async def delete_report(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_id: str
 ):
     """Deletes an existing report
@@ -546,13 +550,13 @@ async def delete_report(
             report_id: UUID of the report to be deleted.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.delete_report(report_id=report_id), media_type="application/xml")
 
 @app.delete("/delete/report/format", tags=["report"])
 async def delete_report(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_format_id: Union[str, ReportFormatType]
 ):
     """Clone a report format from an existing one
@@ -565,13 +569,13 @@ async def delete_report(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.delete_report_format(report_format_id=report_format_id), media_type="application/xml")
 
 @app.post("/import/report", tags=["report"])
 async def import_report(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report: str,
     task_id: Optional[str] = None,
     in_assets: Optional[bool] = None,
@@ -588,13 +592,13 @@ async def import_report(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.import_report(report=report,task_id=task_id,in_assets=in_assets), media_type="application/xml")
 
 @app.post("/import/report/format", tags=["report"])
 async def import_report_format(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_format: str
 ):
     """Import a report format from XML
@@ -607,13 +611,13 @@ async def import_report_format(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.import_report_format(report_format=report_format), media_type="application/xml")
 
 @app.patch("/modify/report/format", tags=["report"])
 async def modify_report_format(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_format_id: Optional[Union[str, ReportFormatType]] = None,
     active: Optional[bool] = None,
     name: Optional[str] = None,
@@ -636,13 +640,13 @@ async def modify_report_format(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.modify_report_format(report_format_id=report_format_id,active=active,name=name,summary=summary,param_name=param_name,param_value=param_value), media_type="application/xml")
 
 @app.get("/verify/report/format", tags=["report"])
 async def verify_report_format(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_format_id: Union[str, ReportFormatType]
 ):
     """Verify an existing report format
@@ -661,13 +665,13 @@ async def verify_report_format(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.verify_report_format(report_format_id=report_format_id), media_type="application/xml")
 
 @app.get("/get/system/reports", tags=["report"])
 async def get_system_reports(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     name: Optional[str] = None,
     duration: Optional[int] = None,
     start_time: Optional[str] = None,
@@ -691,7 +695,7 @@ async def get_system_reports(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_system_reports(name=name,duration=duration,start_time=start_time,end_time=end_time,brief=brief,slave_id=slave_id), media_type="application/xml")
 
@@ -699,7 +703,7 @@ async def get_system_reports(
 
 @app.get("/get/user", tags=["user"])
 async def get_user(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     user_id: str
     ):
     """Request a single user
@@ -712,13 +716,13 @@ async def get_user(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_user(user_id=user_id), media_type="application/xml")
 
 @app.get("/get/user/settings", tags=["user"])
 async def get_user_settings(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     filter_string: Optional[str] = None
     ):
     """Request a list of user settings
@@ -731,13 +735,13 @@ async def get_user_settings(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_user_settings(filter_string=filter_string), media_type="application/xml")
 
 @app.get("/get/user/setting", tags=["user"])
 async def get_user_setting(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     setting_id: str
     ):
     """Request a list of user settings
@@ -750,13 +754,13 @@ async def get_user_setting(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_user_setting(setting_id=setting_id), media_type="application/xml")
     
 @app.get("/get/users", tags=["user"])
 async def get_users(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     filter_string: Optional[str] = None,
     filter_id: Optional[str] = None,
     ):
@@ -771,7 +775,7 @@ async def get_users(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_users(filter_id=filter_id, filter_string=filter_string), media_type="application/xml")
 
@@ -779,7 +783,7 @@ async def get_users(
 
 @app.get("/get/feeds", tags=["feeds"])
 async def get_feeds(
-    current_user: Annotated[User, Depends(get_current_active_user)]
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)]
     ):
     """Request the list of feeds
 
@@ -787,13 +791,13 @@ async def get_feeds(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_feeds(), media_type="application/xml")
 
 @app.get("/get/feed", tags=["feeds"])
 async def get_feed(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     feed_type: Optional[FeedType]
     ):
     """Request a single feed
@@ -805,6 +809,6 @@ async def get_feed(
             The response.
         """
     with Gmp(connection=CONNECTION) as gmp:
-        if verify_password(PASSWORD, current_user.hashed_password):
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_feed(feed_type=feed_type), media_type="application/xml")
