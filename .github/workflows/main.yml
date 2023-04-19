@@ -1,15 +1,17 @@
-name: Auto Versioning
+name: Auto Version
 on:
-  push:
+  pull_request:
+    types:
+    - closed
     branches:
-      - main
+    - main
   workflow_dispatch:
 jobs:
-  build:
+  MakeRelease:
     runs-on: ubuntu-latest
     steps:
         - name: Checkout
-          uses: actions/checkout@v2
+          uses: actions/checkout@v3
           with:
             fetch-depth: 0
         - name: Get Version Tag
@@ -23,6 +25,18 @@ jobs:
             # search_commit_body: true
             # If this is set to true, *every* commit will be treated as a new version.
             bump_each_commit: true
+            enable_prerelease_mode: true
+        - name: Find and Replace
+          uses: jacobtomlinson/gha-find-replace@v3
+          with:
+            include: dockerfile
+            find: ENV VERSION=\d{1,3}\.\d{1,3}\.\d{1,3}
+            replace: ENV VERSION=${{ steps.version.outputs.version_tag }}
+            regex: true
+        - name: Commit & Push Version Change
+          uses: actions-js/push@master
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
         - name: Create Release
           uses: ncipollo/release-action@v1
           with:
