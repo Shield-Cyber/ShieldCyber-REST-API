@@ -802,6 +802,7 @@ async def get_feed(
     """Request a single feed
 
         Arguments:
+        
             feed_type: Type of single feed to get: NVT, CERT or SCAP
 
         Returns:
@@ -836,6 +837,7 @@ async def create_target(
     """Create a new target
 
         Arguments:
+
             name: Name of the target
             asset_hosts_filter: Filter to select target host from assets hosts
             hosts: List of hosts addresses to scan
@@ -874,15 +876,13 @@ async def get_scan_configs(
     """Request a list of scan configs
 
         Arguments:
+
             filter_string: Filter term to use for the query
             filter_id: UUID of an existing filter to use for the query
             trash: Whether to get the trashcan scan configs instead
-            details: Whether to get config families, preferences, nvt selectors
-                and tasks.
-            families: Whether to include the families if no details are
-                requested
-            preferences: Whether to include the preferences if no details are
-                requested
+            details: Whether to get config families, preferences, nvt selectors and tasks.
+            families: Whether to include the families if no details are requested
+            preferences: Whether to include the preferences if no details are requested
             tasks: Whether to get tasks using this config
 
         Returns:
@@ -904,6 +904,7 @@ async def get_scanners(
     """Request a list of scanners
 
         Arguments:
+
             filter_string: Filter term to use for the query
             filter_id: UUID of an existing filter to use for the query
             trash: Whether to get the trashcan scanners instead
@@ -929,6 +930,7 @@ async def get_port_lists(
     """Request a list of port lists
 
         Arguments:
+
             filter_string: Filter term to use for the query
             filter_id: UUID of an existing filter to use for the query
             details: Whether to include full port list details
