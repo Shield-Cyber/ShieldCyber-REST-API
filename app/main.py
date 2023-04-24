@@ -3,7 +3,6 @@ from .auth import LOGGER as AUTH_LOGGER
 from fastapi import FastAPI, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated, Optional, Union, List
-from gvm.protocols.gmpv208.entities.targets import AliveTest
 from gvm.protocols.gmpv208.entities.report_formats import ReportFormatType
 from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
 from gvm.protocols.gmpv208.system.feed import FeedType
@@ -811,52 +810,3 @@ async def get_feed(
         if Auth.verify_password(PASSWORD, current_user.hashed_password):
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_feed(feed_type=feed_type), media_type="application/xml")
-
-### MIN REQS FOR CREATE TASKS ###
-
-@app.post("/create/target", tags=["target"])
-async def get_feed(
-    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-        name: str,
-        asset_hosts_filter: Optional[str] = None,
-        hosts: Optional[List[str]] = None,
-        comment: Optional[str] = None,
-        exclude_hosts: Optional[List[str]] = None,
-        ssh_credential_id: Optional[str] = None,
-        ssh_credential_port: Optional[int] = None,
-        smb_credential_id: Optional[str] = None,
-        esxi_credential_id: Optional[str] = None,
-        snmp_credential_id: Optional[str] = None,
-        alive_test: Optional[AliveTest] = None,
-        reverse_lookup_only: Optional[bool] = None,
-        reverse_lookup_unify: Optional[bool] = None,
-        port_range: Optional[str] = None,
-        port_list_id: Optional[str] = None,
-    ):
-    """Create a new target
-
-        Arguments:
-            name: Name of the target
-            asset_hosts_filter: Filter to select target host from assets hosts
-            hosts: List of hosts addresses to scan
-            exclude_hosts: List of hosts addresses to exclude from scan
-            comment: Comment for the target
-            ssh_credential_id: UUID of a ssh credential to use on target
-            ssh_credential_port: The port to use for ssh credential
-            smb_credential_id: UUID of a smb credential to use on target
-            snmp_credential_id: UUID of a snmp credential to use on target
-            esxi_credential_id: UUID of a esxi credential to use on target
-            alive_test: Which alive test to use
-            reverse_lookup_only: Whether to scan only hosts that have names
-            reverse_lookup_unify: Whether to scan only one IP when multiple IPs have the same name.
-            port_range: Port range for the target
-            port_list_id: UUID of the port list to use on target
-
-        Returns:
-            The response.
-        """
-    with Gmp(connection=CONNECTION) as gmp:
-        if Auth.verify_password(PASSWORD, current_user.hashed_password):
-            gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.create_target(name=name,asset_hosts_filter=asset_hosts_filter,hosts=hosts,comment=comment,exclude_hosts=exclude_hosts,ssh_credential_id=ssh_credential_id,ssh_credential_port=ssh_credential_port,smb_credential_id=smb_credential_id,esxi_credential_id=esxi_credential_id,snmp_credential_id=snmp_credential_id,alive_test=alive_test,reverse_lookup_only=reverse_lookup_only,reverse_lookup_unify=reverse_lookup_unify,port_range=port_range,port_list_id=port_list_id), media_type="application/xml")
-
