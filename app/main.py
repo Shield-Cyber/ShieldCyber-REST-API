@@ -860,7 +860,7 @@ async def create_target(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.create_target(name=name,asset_hosts_filter=asset_hosts_filter,hosts=hosts,comment=comment,exclude_hosts=exclude_hosts,ssh_credential_id=ssh_credential_id,ssh_credential_port=ssh_credential_port,smb_credential_id=smb_credential_id,esxi_credential_id=esxi_credential_id,snmp_credential_id=snmp_credential_id,alive_test=alive_test,reverse_lookup_only=reverse_lookup_only,reverse_lookup_unify=reverse_lookup_unify,port_range=port_range,port_list_id=port_list_id), media_type="application/xml")
 
-@app.get("/get/scan/configs", tags=["feeds"])
+@app.get("/get/scan/configs", tags=["scan"])
 async def get_scan_configs(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     filter_string: Optional[str] = None,
@@ -871,10 +871,19 @@ async def get_scan_configs(
     preferences: Optional[bool] = None,
     tasks: Optional[bool] = None
     ):
-    """Request a single feed
+    """Request a list of scan configs
 
         Arguments:
-            feed_type: Type of single feed to get: NVT, CERT or SCAP
+            filter_string: Filter term to use for the query
+            filter_id: UUID of an existing filter to use for the query
+            trash: Whether to get the trashcan scan configs instead
+            details: Whether to get config families, preferences, nvt selectors
+                and tasks.
+            families: Whether to include the families if no details are
+                requested
+            preferences: Whether to include the preferences if no details are
+                requested
+            tasks: Whether to get tasks using this config
 
         Returns:
             The response.
