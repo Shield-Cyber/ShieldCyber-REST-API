@@ -860,3 +860,26 @@ async def get_feed(
             gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.create_target(name=name,asset_hosts_filter=asset_hosts_filter,hosts=hosts,comment=comment,exclude_hosts=exclude_hosts,ssh_credential_id=ssh_credential_id,ssh_credential_port=ssh_credential_port,smb_credential_id=smb_credential_id,esxi_credential_id=esxi_credential_id,snmp_credential_id=snmp_credential_id,alive_test=alive_test,reverse_lookup_only=reverse_lookup_only,reverse_lookup_unify=reverse_lookup_unify,port_range=port_range,port_list_id=port_list_id), media_type="application/xml")
 
+@app.get("/get/scan/configs", tags=["feeds"])
+async def get_scan_configs(
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
+    filter_string: Optional[str] = None,
+    filter_id: Optional[str] = None,
+    trash: Optional[bool] = None,
+    details: Optional[bool] = None,
+    families: Optional[bool] = None,
+    preferences: Optional[bool] = None,
+    tasks: Optional[bool] = None
+    ):
+    """Request a single feed
+
+        Arguments:
+            feed_type: Type of single feed to get: NVT, CERT or SCAP
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=CONNECTION) as gmp:
+        if Auth.verify_password(PASSWORD, current_user.hashed_password):
+            gmp.authenticate(username=current_user.username, password=PASSWORD)
+        return Response(content=gmp.get_scan_configs(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details,families=families,preferences=preferences,tasks=tasks), media_type="application/xml")
