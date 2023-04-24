@@ -815,7 +815,7 @@ async def get_feed(
 ### MIN REQS FOR CREATE TASKS ###
 
 @app.post("/create/target", tags=["target"])
-async def get_feed(
+async def create_target(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
         name: str,
         asset_hosts_filter: Optional[str] = None,
