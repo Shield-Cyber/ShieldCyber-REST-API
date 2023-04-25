@@ -47,7 +47,7 @@ async def get_scan_configs(
         gmp.authenticate(username=current_user.username, password=PASSWORD)
         return Response(content=gmp.get_scan_configs(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details,families=families,preferences=preferences,tasks=tasks), media_type="application/xml")
 
-@ROUTER.get("/get/scanners")
+@ROUTER.get("/get/scanners", deprecated=True)
 async def get_scanners(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     filter_string: Optional[str] = None,
