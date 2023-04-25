@@ -1,5 +1,6 @@
 from .authentication import ROUTER as AUTHENTICATION
 from .version import ROUTER as VERSION
+from .scanner import ROUTER as SCANNER
 from .report import ROUTER as REPORT
 from .target import ROUTER as TARGET
 from .feed import ROUTER as FEED
