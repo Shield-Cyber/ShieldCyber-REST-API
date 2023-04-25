@@ -7,8 +7,9 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 import os
 import logging
+from app import LOGGING_PREFIX
 
-LOGGER = logging.getLogger("api.auth")
+LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.auth")
 
 USERNAME: str = os.getenv("USERNAME")
 PASSWORD: str = os.getenv("PASSWORD")

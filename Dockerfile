@@ -7,7 +7,7 @@ RUN mkcert -install
 
 WORKDIR /opt
 
-COPY requirements.txt /opt
+COPY /app/requirements.txt /opt
 RUN pip3 install -r requirements.txt
 
 RUN mkdir certs
@@ -15,6 +15,6 @@ RUN mkcert -cert-file ./certs/cert.pem -key-file ./certs/key.pem localhost 127.0
 
 ENV VERSION=0.1.5
 
-COPY . /opt
+COPY /app ./app
 
-CMD uvicorn app.main:app --host 0.0.0.0 --ssl-keyfile=./certs/key.pem --ssl-certfile=./certs/cert.pem --log-config ./conf/log.yaml
+CMD uvicorn app.main:app --host 0.0.0.0 --ssl-keyfile=./certs/key.pem --ssl-certfile=./certs/cert.pem --log-config ./app/config/log.yaml
