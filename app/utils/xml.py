@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 import xml.etree.ElementTree as ET
 import logging
+from app import LOGGING_PREFIX
 
-LOGGER = logging.getLogger("api.xml")
+LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.xml")
 
 @dataclass
 class response:
