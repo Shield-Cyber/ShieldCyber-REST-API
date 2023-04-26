@@ -1,3 +1,5 @@
 .trash
-example.env
-.devcontainer
+*__pycache__*
+v1.5.0
+.env
+.pytest_cache
