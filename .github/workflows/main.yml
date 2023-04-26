@@ -1,10 +1,13 @@
 name: Auto Version
 on:
-  pull_request:
-    types:
-    - closed
+#   pull_request:
+#     types:
+#     - closed
+#     branches:
+#     - main
+  push:
     branches:
-    - main
+      - main
   workflow_dispatch:
 jobs:
   MakeRelease:
@@ -47,5 +50,5 @@ jobs:
             # draft: true
             # prerelease: true
             makeLatest: true
-            updateOnlyUnreleased: true
+            updateOnlyUnreleased: false
             allowUpdates: true
