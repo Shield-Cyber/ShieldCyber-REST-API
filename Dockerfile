@@ -13,7 +13,7 @@ RUN pip3 install -r requirements.txt
 RUN mkdir certs
 RUN mkcert -cert-file ./certs/cert.pem -key-file ./certs/key.pem localhost 127.0.0.1 0.0.0.0
 
-ENV VERSION=2.2.1
+ENV VERSION=2.3.1
 
 COPY /app ./app
 
