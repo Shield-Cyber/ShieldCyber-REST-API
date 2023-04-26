@@ -35,6 +35,7 @@ jobs:
         - name: Commit & Push Version Change
           uses: actions-js/push@master
           with:
+            message: Version Bump
             github_token: ${{ secrets.GITHUB_TOKEN }}
         - name: Create Release
           uses: ncipollo/release-action@v1
