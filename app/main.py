@@ -5,9 +5,8 @@ from gvm.connections import UnixSocketConnection
 from gvm.protocols.gmp import Gmp
 from app.utils.xml import root as xml_root
 import time
-import os
 from app import routes as RT
-from app import DESCRIPTION, LOGGING_PREFIX
+from app import DESCRIPTION, LOGGING_PREFIX, VERSION
 
 # Logging
 LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.main")
@@ -41,7 +40,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Greenbone Rest API",
     description=DESCRIPTION,
-    version=os.getenv("VERSION"),
+    version=VERSION,
     swagger_ui_parameters={"tagsSorter": "alpha", "operationsSorter": "alpha"},
     lifespan=lifespan
 )

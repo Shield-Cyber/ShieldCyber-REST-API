@@ -4,7 +4,7 @@ from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
 from typing import Annotated
-from app import LOGGING_PREFIX
+from app import LOGGING_PREFIX, VERSION
 
 ENDPOINT = "version"
 
@@ -39,4 +39,15 @@ async def get_protocol_version(
             tuple: Implemented version of the Greenbone Management Protocol
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        return gmp.get_protocol_version()
+        return Response(content=gmp.get_protocol_version(), media_type="application/xml")
+    
+@ROUTER.get("/get/api/version")
+async def get_api_version(
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)]
+):
+    """Determine the current API version.
+
+        Returns:
+            str: Version of the API
+        """
+    return Response(content=VERSION, media_type="text")
