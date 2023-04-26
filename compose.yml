@@ -172,7 +172,7 @@ services:
 
 # Rest API
   rest-api:
-    build: .
+    build: ./app
     restart: on-failure
     ports:
       - 8000:8000
