@@ -43,7 +43,7 @@ async def get_protocol_version(
     
 @ROUTER.get("/get/api/version")
 async def get_api_version(
-    # current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)]
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)]
 ):
     """Determine the current API version.
 
