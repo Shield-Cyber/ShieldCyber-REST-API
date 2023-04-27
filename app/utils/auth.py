@@ -5,14 +5,10 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
-import os
 import logging
-from app import LOGGING_PREFIX
+from app import LOGGING_PREFIX, USERNAME, PASSWORD
 
 LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.auth")
-
-USERNAME: str = os.getenv("USERNAME")
-PASSWORD: str = os.getenv("PASSWORD")
 
 SECRET_KEY = "5ef48f2decbe7df5467a771018a2d33d05d4b8d896751d72cb80c71883c483f8"
 ALGORITHM = "HS256"
