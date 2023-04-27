@@ -50,4 +50,5 @@ async def get_api_version(
         Returns:
             str: Version of the API
         """
-    return Response(content=VERSION, media_type="text")
+    content = f"<version>{VERSION}</version>"
+    return Response(content=content, media_type="application/xml")
