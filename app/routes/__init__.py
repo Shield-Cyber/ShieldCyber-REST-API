@@ -8,3 +8,4 @@ from .port import ROUTER as PORT
 from .scan import ROUTER as SCAN
 from .user import ROUTER as USER
 from .ping import ROUTER as PING
+from .task import ROUTER as TASK
