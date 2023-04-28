@@ -22,10 +22,12 @@ jobs:
         - name: Change Dir
           run: |
             ls -la
-        - name: GitHub Action for pytest
-          uses: cclauss/GitHub-Action-for-pytest@0.5.0
-          with:
-            args: pytest
+        - name: Install Testing Dependecies
+          run: |
+            pip3 install pytest httpx
+        - name: Run PyTest
+          run: |
+            pytest
   MakeRelease:
     needs: PyTest
     runs-on: ubuntu-latest
