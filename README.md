@@ -1,5 +1,3 @@
-![Build](https://github.com/Hoplite-Consulting/RESTBone/actions/workflows/main.yml/badge.svg)
-
 # Default Creds
 - admin/admin
 
