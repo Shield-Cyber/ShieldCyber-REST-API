@@ -21,8 +21,8 @@ jobs:
             path: "app/requirements.txt"
         - name: Change Dir
           run: |
-            cd RESTBone/
             ls
+            cd ./RESTbone/
         - name: GitHub Action for pytest
           uses: cclauss/GitHub-Action-for-pytest@0.5.0
           with:
