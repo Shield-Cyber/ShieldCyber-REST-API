@@ -1,4 +1,4 @@
-name: Auto Build / Release
+name: Auto
 on:
 #   pull_request:
 #     types:
