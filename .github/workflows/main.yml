@@ -1,4 +1,4 @@
-name: Auto Version
+name: Auto Build / Release
 on:
 #   pull_request:
 #     types:
@@ -31,7 +31,7 @@ jobs:
         - name: Run PyTest
           run: |
             pytest
-  MakeRelease:
+  Release:
     needs: PyTest
     runs-on: ubuntu-latest
     steps:
@@ -72,5 +72,8 @@ jobs:
             # draft: true
             # prerelease: true
             makeLatest: true
-            updateOnlyUnreleased: true
+            updateOnlyUnreleased: false
             allowUpdates: true
+            omitBodyDuringUpdate: true
+            omitNameDuringUpdate: true
+            omitPrereleaseDuringUpdate: true
