@@ -3,4 +3,3 @@
 v1.5.0
 .env
 .pytest_cache
-tests/
