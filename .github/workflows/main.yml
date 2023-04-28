@@ -1,4 +1,4 @@
-name: Auto Version
+name: Auto Build / Release
 on:
 #   pull_request:
 #     types:
@@ -10,7 +10,29 @@ on:
       - main
   workflow_dispatch:
 jobs:
-  MakeRelease:
+  PyTest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10.x", "3.11.x"]
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+        - name: Set up Python ${{ matrix.python-version }}
+          uses: actions/setup-python@v4
+          with:
+            python-version: ${{ matrix.python-version }}
+        - name: Install Python Dependencies
+          run: |
+            pip3 install -r app/requirements.txt
+        - name: Install Testing Dependecies
+          run: |
+            pip3 install pytest httpx
+        - name: Run PyTest
+          run: |
+            pytest
+  Release:
+    needs: PyTest
     runs-on: ubuntu-latest
     steps:
         - name: Checkout
@@ -50,5 +72,8 @@ jobs:
             # draft: true
             # prerelease: true
             makeLatest: true
-            updateOnlyUnreleased: true
+            updateOnlyUnreleased: false
             allowUpdates: true
+            omitBodyDuringUpdate: true
+            omitNameDuringUpdate: true
+            omitPrereleaseDuringUpdate: true
