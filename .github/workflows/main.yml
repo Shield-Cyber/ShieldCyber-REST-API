@@ -13,14 +13,14 @@ jobs:
   PyTest:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-          uses: actions/checkout@v3
+        - name: Checkout
+            uses: actions/checkout@v3
+            with:
+              fetch-depth: 0
+        - name: GitHub Action for pytest
+          uses: cclauss/GitHub-Action-for-pytest@0.5.0
           with:
-            fetch-depth: 0
-      - name: GitHub Action for pytest
-        uses: cclauss/GitHub-Action-for-pytest@0.5.0
-        with:
-          args: pytest tests/
+            args: pytest tests/
   MakeRelease:
     needs: PyTest
     runs-on: ubuntu-latest
