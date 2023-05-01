@@ -39,7 +39,8 @@ async def get_protocol_version(
             tuple: Implemented version of the Greenbone Management Protocol
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        return Response(content=gmp.get_protocol_version(), media_type="application/xml")
+        content = str(gmp.get_protocol_version())
+        return Response(content=content, media_type="application/xml")
     
 @ROUTER.get("/get/api/version")
 async def get_api_version(
