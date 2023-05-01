@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Response
 from app.utils.auth import Auth, PASSWORD
+from app.utils.xml import XMLResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -13,7 +14,8 @@ LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
 
 ROUTER = APIRouter(
     prefix=f"/{ENDPOINT}",
-    tags=[ENDPOINT]
+    tags=[ENDPOINT],
+    default_response_class=XMLResponse
     )
 
 ### ROUTES ###
@@ -42,7 +44,7 @@ async def get_port_lists(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_port_lists(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details,targets=targets), media_type="application/xml")
+        return gmp.get_port_lists(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details,targets=targets)
 
 @ROUTER.get("/get/port/list")
 async def get_port_list(
@@ -60,7 +62,7 @@ async def get_port_list(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_port_list(port_list_id=port_list_id), media_type="application/xml")
+        return gmp.get_port_list(port_list_id=port_list_id)
 
 @ROUTER.post("/clone/port/list")
 async def clone_port_list(
@@ -78,7 +80,7 @@ async def clone_port_list(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.clone_port_list(port_list_id=port_list_id), media_type="application/xml")
+        return gmp.clone_port_list(port_list_id=port_list_id)
 
 @ROUTER.post("/create/port/list")
 async def create_port_list(
@@ -100,7 +102,7 @@ async def create_port_list(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.create_port_list(name=name, port_range=port_range, comment=comment), media_type="application/xml")
+        return gmp.create_port_list(name=name, port_range=port_range, comment=comment)
 
 @ROUTER.post("/create/port/range")
 async def create_port_range(
@@ -126,7 +128,7 @@ async def create_port_range(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.create_port_range(port_list_id=port_list_id,start=start,end=end,port_range_type=port_range_type,comment=comment), media_type="application/xml")
+        return  gmp.create_port_range(port_list_id=port_list_id,start=start,end=end,port_range_type=port_range_type,comment=comment)
 
 @ROUTER.delete("/delete/port/list")
 async def delete_port_list(
@@ -143,7 +145,7 @@ async def delete_port_list(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.delete_port_list(port_list_id=port_list_id, ultimate=ultimate), media_type="application/xml")
+        return gmp.delete_port_list(port_list_id=port_list_id, ultimate=ultimate)
 
 @ROUTER.delete("/delete/port/range")
 async def delete_port_range(
@@ -158,7 +160,7 @@ async def delete_port_range(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.delete_port_range(port_range_id=port_range_id), media_type="application/xml")
+        return gmp.delete_port_range(port_range_id=port_range_id)
 
 @ROUTER.patch("/modify/port/list")
 async def modify_port_list(
@@ -180,4 +182,4 @@ async def modify_port_list(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.modify_port_list(port_list_id=port_list_id, comment=comment, name=name), media_type="application/xml")
+        return gmp.modify_port_list(port_list_id=port_list_id, comment=comment, name=name)
