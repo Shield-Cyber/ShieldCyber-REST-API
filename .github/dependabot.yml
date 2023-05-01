@@ -9,7 +9,11 @@ updates:
     directory: "/app" # Location of package manifests
     schedule:
       interval: "daily"
+      time: "07:00"
+      timezone: "America/Indiana/Indianapolis"
   - package-ecosystem: "docker"
     directory: "/app"
     schedule:
       interval: "daily"
+      time: "07:00"
+      timezone: "America/Indiana/Indianapolis"
