@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Response
 from app.utils.auth import Auth, PASSWORD
+from app.utils.xml import XMLResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -12,7 +13,8 @@ LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
 
 ROUTER = APIRouter(
     prefix=f"/{ENDPOINT}",
-    tags=[ENDPOINT]
+    tags=[ENDPOINT],
+    default_response_class=XMLResponse
     )
 
 ### ROUTES ###
@@ -45,7 +47,7 @@ async def get_scan_configs(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_scan_configs(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details,families=families,preferences=preferences,tasks=tasks), media_type="application/xml")
+        return gmp.get_scan_configs(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details,families=families,preferences=preferences,tasks=tasks)
 
 @ROUTER.get("/get/scanners", deprecated=True)
 async def get_scanners(

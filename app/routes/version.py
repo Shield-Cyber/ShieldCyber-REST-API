@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Response
 from app.utils.auth import Auth
+from app.utils.xml import XMLResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -12,7 +13,8 @@ LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
 
 ROUTER = APIRouter(
     prefix=f"/{ENDPOINT}",
-    tags=[ENDPOINT]
+    tags=[ENDPOINT],
+    default_response_class=XMLResponse
     )
 
 ### ROUTES ###
@@ -27,7 +29,7 @@ async def get_version(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        return Response(content=gmp.get_version(), media_type="application/xml")
+        return gmp.get_version()
     
 @ROUTER.get("/get/protocol/version")
 async def get_protocol_version(

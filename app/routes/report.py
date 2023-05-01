@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Response
 from app.utils.auth import Auth, PASSWORD
+from app.utils.xml import XMLResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -13,7 +14,8 @@ LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
 
 ROUTER = APIRouter(
     prefix=f"/{ENDPOINT}",
-    tags=[ENDPOINT]
+    tags=[ENDPOINT],
+    default_response_class=XMLResponse
     )
 
 ### ROUTES ###
@@ -46,7 +48,7 @@ async def get_report(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details), media_type="application/xml")    
+        return gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details)
 
 @ROUTER.get("/get/reports")
 async def get_reports(
@@ -74,7 +76,7 @@ async def get_reports(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_reports(filter_string=filter_string,filter_id=filter_id,note_details=note_details,override_details=override_details,ignore_pagination=ignore_pagination,details=details), media_type="application/xml")
+        return gmp.get_reports(filter_string=filter_string,filter_id=filter_id,note_details=note_details,override_details=override_details,ignore_pagination=ignore_pagination,details=details)
 
 @ROUTER.get("/get/report/format")
 async def get_report_format(
@@ -91,7 +93,7 @@ async def get_report_format(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_report_format(report_format_id=report_format_id), media_type="application/xml")
+        return gmp.get_report_format(report_format_id=report_format_id)
 
 @ROUTER.get("/get/report/formats")
 async def get_report_formats(
@@ -113,7 +115,7 @@ async def get_report_formats(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_report_formats(filter_string=filter_string,filter_id=filter_id,trash=trash,alerts=alerts,params=params,details=details), media_type="application/xml")
+        return gmp.get_report_formats(filter_string=filter_string,filter_id=filter_id,trash=trash,alerts=alerts,params=params,details=details)
 
 @ROUTER.post("/clone/report/formats")
 async def get_report_formats(
@@ -131,7 +133,7 @@ async def get_report_formats(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.clone_report_format(report_format_id=report_format_id), media_type="application/xml")
+        return gmp.clone_report_format(report_format_id=report_format_id)
 
 @ROUTER.delete("/delete/report")
 async def delete_report(
@@ -146,7 +148,7 @@ async def delete_report(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.delete_report(report_id=report_id), media_type="application/xml")
+        return gmp.delete_report(report_id=report_id)
 
 @ROUTER.delete("/delete/report/format")
 async def delete_report(
@@ -164,7 +166,7 @@ async def delete_report(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.delete_report_format(report_format_id=report_format_id), media_type="application/xml")
+        return gmp.delete_report_format(report_format_id=report_format_id)
 
 @ROUTER.post("/import/report")
 async def import_report(
@@ -186,7 +188,7 @@ async def import_report(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.import_report(report=report,task_id=task_id,in_assets=in_assets), media_type="application/xml")
+        return gmp.import_report(report=report,task_id=task_id,in_assets=in_assets)
 
 @ROUTER.post("/import/report/format")
 async def import_report_format(
@@ -204,7 +206,7 @@ async def import_report_format(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.import_report_format(report_format=report_format), media_type="application/xml")
+        return gmp.import_report_format(report_format=report_format)
 
 @ROUTER.patch("/modify/report/format")
 async def modify_report_format(
@@ -232,7 +234,7 @@ async def modify_report_format(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.modify_report_format(report_format_id=report_format_id,active=active,name=name,summary=summary,param_name=param_name,param_value=param_value), media_type="application/xml")
+        return gmp.modify_report_format(report_format_id=report_format_id,active=active,name=name,summary=summary,param_name=param_name,param_value=param_value)
 
 @ROUTER.get("/verify/report/format")
 async def verify_report_format(
@@ -256,7 +258,7 @@ async def verify_report_format(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.verify_report_format(report_format_id=report_format_id), media_type="application/xml")
+        return gmp.verify_report_format(report_format_id=report_format_id)
 
 @ROUTER.get("/get/system/reports")
 async def get_system_reports(
@@ -285,4 +287,4 @@ async def get_system_reports(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_system_reports(name=name,duration=duration,start_time=start_time,end_time=end_time,brief=brief,slave_id=slave_id), media_type="application/xml")
+        return gmp.get_system_reports(name=name,duration=duration,start_time=start_time,end_time=end_time,brief=brief,slave_id=slave_id)

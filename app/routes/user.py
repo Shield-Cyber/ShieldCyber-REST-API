@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
 from app.utils.auth import Auth, PASSWORD
+from app.utils.xml import XMLResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -12,7 +13,8 @@ LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
 
 ROUTER = APIRouter(
     prefix=f"/{ENDPOINT}",
-    tags=[ENDPOINT]
+    tags=[ENDPOINT],
+    default_response_class=XMLResponse
     )
 
 ### ROUTES ###
@@ -33,7 +35,7 @@ async def get_user(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_user(user_id=user_id), media_type="application/xml")
+        return gmp.get_user(user_id=user_id)
 
 @ROUTER.get("/get/user/settings")
 async def get_user_settings(
@@ -51,25 +53,25 @@ async def get_user_settings(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_user_settings(filter_string=filter_string), media_type="application/xml")
+        return gmp.get_user_settings(filter_string=filter_string)
 
 @ROUTER.get("/get/user/setting")
 async def get_user_setting(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     setting_id: str
     ):
-    """Request a list of user settings
+    """Request a single user setting
 
         Arguments:
 
-            filter_string: Filter term to use for the query
+            setting_id: UUID of an existing setting
 
         Returns:
-            The response.
+            The response. See :py:meth:`send_command` for details.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_user_setting(setting_id=setting_id), media_type="application/xml")
+        return gmp.get_user_setting(setting_id=setting_id)
     
 @ROUTER.get("/get/users")
 async def get_users(
@@ -89,4 +91,4 @@ async def get_users(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_users(filter_id=filter_id, filter_string=filter_string), media_type="application/xml")
+        return gmp.get_users(filter_id=filter_id, filter_string=filter_string)

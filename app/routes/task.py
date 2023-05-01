@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
 from app.utils.auth import Auth, PASSWORD
+from app.utils.xml import XMLResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -13,7 +14,8 @@ LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
 
 ROUTER = APIRouter(
     prefix=f"/{ENDPOINT}",
-    tags=[ENDPOINT]
+    tags=[ENDPOINT],
+    default_response_class=XMLResponse
     )
 
 ### ROUTES ###
@@ -42,7 +44,7 @@ async def get_tasks(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_tasks(filter_string=filter_string, filter_id=filter_id, trash=trash, details=details, schedules_only=schedules_only), media_type="application/xml")
+        return gmp.get_tasks(filter_string=filter_string, filter_id=filter_id, trash=trash, details=details, schedules_only=schedules_only)
 
 @ROUTER.get("/get/task", tags=["task"])
 async def get_task(
@@ -60,7 +62,7 @@ async def get_task(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.get_task(task_id), media_type="application/xml")
+        return gmp.get_task(task_id)
 
 @ROUTER.delete("/delete/task", tags=["task"])
 async def delete_task(
@@ -77,7 +79,7 @@ async def delete_task(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.delete_task(task_id=task_id, ultimate=ultimate), media_type="application/xml")
+        return gmp.delete_task(task_id=task_id, ultimate=ultimate)
 
 @ROUTER.post("/create/task", tags=["task"])
 async def create_task(
@@ -117,7 +119,7 @@ async def create_task(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.create_task(name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,alert_ids=alert_ids,comment=comment,schedule_periods=schedule_periods,observers=observers,preferences=preferences), media_type="application/xml")
+        return gmp.create_task(name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,alert_ids=alert_ids,comment=comment,schedule_periods=schedule_periods,observers=observers,preferences=preferences)
 
 @ROUTER.patch("/modify/task", tags=["task"])
 async def modify_task(
@@ -158,7 +160,7 @@ async def modify_task(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.modify_task(task_id=task_id,name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,schedule_periods=schedule_periods,comment=comment,alert_ids=alert_ids,observers=observers,preferences=preferences), media_type="application/xml")
+        return gmp.modify_task(task_id=task_id,name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,schedule_periods=schedule_periods,comment=comment,alert_ids=alert_ids,observers=observers,preferences=preferences)
 
 @ROUTER.post("/stop/task", tags=["task"])
 async def stop_task(
@@ -176,7 +178,7 @@ async def stop_task(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.stop_task(task_id=task_id), media_type="application/xml")
+        return gmp.stop_task(task_id=task_id)
 
 @ROUTER.post("/start/task", tags=["task"])
 async def start_task(
@@ -194,7 +196,7 @@ async def start_task(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.start_task(task_id=task_id), media_type="application/xml")
+        return gmp.start_task(task_id=task_id)
 
 @ROUTER.post("/clone/task", tags=["task"])
 async def clone_task(
@@ -212,7 +214,7 @@ async def clone_task(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.clone_task(task_id=task_id), media_type="application/xml")
+        return gmp.clone_task(task_id=task_id)
 
 @ROUTER.patch("/move/task", tags=["task"])
 async def move_task(
@@ -232,7 +234,7 @@ async def move_task(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.move_task(task_id=task_id, slave_id=slave_id), media_type="application/xml")
+        return gmp.move_task(task_id=task_id, slave_id=slave_id)
 
 @ROUTER.post("/resume/task", tags=["task"])
 async def resume_task(
@@ -250,4 +252,4 @@ async def resume_task(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.resume_task(task_id=task_id), media_type="application/xml")
+        return gmp.resume_task(task_id=task_id)
