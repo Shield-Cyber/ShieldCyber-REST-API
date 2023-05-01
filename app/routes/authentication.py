@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from app.utils.auth import Auth, users_db, ACCESS_TOKEN_EXPIRE_MINUTES, PASSWORD
+from app.utils.xml import XMLResponse
 from gvm.protocols.gmp import Gmp
 from gvm.connections import UnixSocketConnection
 from typing import Annotated
@@ -36,7 +37,7 @@ async def authenticate(
     LOGGER.info(f"User '{form_data.username}' has passed authentication.")
     return {"access_token": access_token, "token_type": "bearer"}
 
-@ROUTER.get("/describe_auth")
+@ROUTER.get("/describe_auth", response_class=XMLResponse)
 async def describe_auth(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)]
 ):
@@ -49,9 +50,9 @@ async def describe_auth(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.describe_auth(), media_type="application/xml")
+        return XMLResponse(gmp.describe_auth())
 
-@ROUTER.get("/is_authenticated")
+@ROUTER.get("/is_authenticated", response_class=XMLResponse)
 async def is_authenticated(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)]
 ):
@@ -66,9 +67,9 @@ async def is_authenticated(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.is_authenticated()
+        return XMLResponse(gmp.is_authenticated())
 
-@ROUTER.patch("/modify_auth")
+@ROUTER.patch("/modify_auth", response_class=XMLResponse)
 async def modify_auth(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     group_name: str,
@@ -86,4 +87,4 @@ async def modify_auth(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return Response(content=gmp.modify_auth(group_name=group_name, auth_conf_settings=auth_conf_settings), media_type="application/xml")
+        return XMLResponse(gmp.modify_auth(group_name=group_name, auth_conf_settings=auth_conf_settings))

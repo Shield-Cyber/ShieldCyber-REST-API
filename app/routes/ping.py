@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 from app import LOGGING_PREFIX
+from app.utils.xml import XMLResponse
 import logging
 
 ENDPOINT = "ping"
@@ -8,11 +9,12 @@ LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
 
 ROUTER = APIRouter(
     prefix=f"/{ENDPOINT}",
-    tags=[ENDPOINT]
+    tags=[ENDPOINT],
+    default_response_class=XMLResponse
     )
 
 ### ROUTES ###
 
 @ROUTER.get("")
 def get_ping():
-    return Response(content="<response>pong</response>", media_type="application/xml")
+    return "<response>pong</response>"
