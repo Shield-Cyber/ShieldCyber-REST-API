@@ -1,4 +1,5 @@
 from .authentication import ROUTER as AUTHENTICATION
+from .credential import ROUTER as CREDENTIAL
 from .version import ROUTER as VERSION
 from .scanner import ROUTER as SCANNER
 from .report import ROUTER as REPORT

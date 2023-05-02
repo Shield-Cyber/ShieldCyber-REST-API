@@ -46,6 +46,7 @@ app = FastAPI(
 )
 
 app.include_router(RT.AUTHENTICATION)
+app.include_router(RT.CREDENTIAL)
 app.include_router(RT.VERSION)
 app.include_router(RT.SCANNER)
 app.include_router(RT.REPORT)
