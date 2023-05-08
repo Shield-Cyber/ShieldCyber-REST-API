@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body
 from app import LOGGING_PREFIX
 from app.utils.auth import Auth, PASSWORD
 from app.utils.xml import XMLResponse
@@ -26,17 +26,17 @@ def create_credential(
         name: str,
         credential_type: CredentialType,
         comment: Optional[str] = None,
-        allow_insecure: Optional[bool] = None,
-        certificate: Optional[str] = None,
-        key_phrase: Optional[str] = None,
-        private_key: Optional[str] = None,
-        login: Optional[str] = None,
-        password: Optional[str] = None,
+        allow_insecure: Optional[bool] = False,
+        certificate: Annotated[str, Body()] = None,
+        key_phrase: Annotated[str, Body()] = None,
+        private_key: Annotated[str, Body()] = None,
+        login: Annotated[str, Body()] = None,
+        password: Annotated[str, Body()] = None,
         auth_algorithm: Optional[SnmpAuthAlgorithm] = None,
-        community: Optional[str] = None,
+        community: Annotated[str, Body()] = None,
         privacy_algorithm: Optional[SnmpPrivacyAlgorithm] = None,
-        privacy_password: Optional[str] = None,
-        public_key: Optional[str] = None,
+        privacy_password: Annotated[str, Body()] = None,
+        public_key: Annotated[str, Body()] = None,
 ):
     """Create a new credential
 
@@ -168,16 +168,16 @@ def modify_credential(
     name: Optional[str] = None,
     comment: Optional[str] = None,
     allow_insecure: Optional[bool] = None,
-    certificate: Optional[str] = None,
-    key_phrase: Optional[str] = None,
-    private_key: Optional[str] = None,
-    login: Optional[str] = None,
-    password: Optional[str] = None,
+    certificate: Annotated[str, Body()] = None,
+    key_phrase: Annotated[str, Body()] = None,
+    private_key: Annotated[str, Body()] = None,
+    login: Annotated[str, Body()] = None,
+    password: Annotated[str, Body()] = None,
     auth_algorithm: Optional[SnmpAuthAlgorithm] = None,
-    community: Optional[str] = None,
+    community: Annotated[str, Body()] = None,
     privacy_algorithm: Optional[SnmpPrivacyAlgorithm] = None,
-    privacy_password: Optional[str] = None,
-    public_key: Optional[str] = None,
+    privacy_password: Annotated[str, Body()] = None,
+    public_key: Annotated[str, Body()] = None,
 ):
     """Modifies an existing credential.
 
