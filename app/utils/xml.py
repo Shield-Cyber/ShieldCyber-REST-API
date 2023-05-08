@@ -32,8 +32,9 @@ class XMLResponse(Response):
     def render(self, content: Any) -> bytes:
         if content:
             try:
-                root = root(content)
-                self.status_code = root.status
-            except:
+                root_ = root(content)
+                self.status_code = root_.status
+            except Exception as err:
+                LOGGER.debug(f"XML root error. Error: '{err}'")
                 pass
         return super().render(content)
