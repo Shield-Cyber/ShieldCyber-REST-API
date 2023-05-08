@@ -6,6 +6,7 @@ import logging
 from gvm.connections import UnixSocketConnection
 from typing import Annotated, Optional, List
 from gvm.protocols.gmpv208.entities.targets import AliveTest
+from gvm.errors import RequiredArgument
 from app import LOGGING_PREFIX
 
 ENDPOINT = "target"
@@ -64,7 +65,10 @@ async def create_target(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.create_target(name=name,asset_hosts_filter=asset_hosts_filter,hosts=hosts,comment=comment,exclude_hosts=exclude_hosts,ssh_credential_id=ssh_credential_id,ssh_credential_port=ssh_credential_port,smb_credential_id=smb_credential_id,esxi_credential_id=esxi_credential_id,snmp_credential_id=snmp_credential_id,alive_test=alive_test,reverse_lookup_only=reverse_lookup_only,reverse_lookup_unify=reverse_lookup_unify,port_range=port_range,port_list_id=port_list_id)
+        try:
+            return gmp.create_target(name=name,asset_hosts_filter=asset_hosts_filter,hosts=hosts,comment=comment,exclude_hosts=exclude_hosts,ssh_credential_id=ssh_credential_id,ssh_credential_port=ssh_credential_port,smb_credential_id=smb_credential_id,esxi_credential_id=esxi_credential_id,snmp_credential_id=snmp_credential_id,alive_test=alive_test,reverse_lookup_only=reverse_lookup_only,reverse_lookup_unify=reverse_lookup_unify,port_range=port_range,port_list_id=port_list_id)
+        except RequiredArgument as err:
+            return f'<create_target_response status="500" status_text="{err}"/>'
 
 @ROUTER.get("/get/target")
 async def get_target(
