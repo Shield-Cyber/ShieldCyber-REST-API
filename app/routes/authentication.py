@@ -67,7 +67,8 @@ async def is_authenticated(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return XMLResponse(gmp.is_authenticated())
+        response = str(gmp.is_authenticated())
+        return XMLResponse(f'<is_authenticated_response status="200" status_text="{response}"/>')
 
 @ROUTER.patch("/modify_auth", response_class=XMLResponse)
 async def modify_auth(
