@@ -67,7 +67,7 @@ async def get_user_setting(
             setting_id: UUID of an existing setting
 
         Returns:
-            The response. See :py:meth:`send_command` for details.
+            The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
