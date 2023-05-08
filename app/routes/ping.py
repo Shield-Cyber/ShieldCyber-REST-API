@@ -17,4 +17,4 @@ ROUTER = APIRouter(
 
 @ROUTER.get("")
 def get_ping():
-    return "<response>pong</response>"
+    return '<ping_response status="200" status_text="pong"/>'
