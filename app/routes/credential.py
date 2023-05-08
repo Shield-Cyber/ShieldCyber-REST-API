@@ -4,6 +4,7 @@ from app.utils.auth import Auth, PASSWORD
 from app.utils.xml import XMLResponse
 from gvm.protocols.gmp import Gmp
 from gvm.connections import UnixSocketConnection
+from gvm.errors import RequiredArgument
 from gvm.protocols.gmpv208.entities.credentials import CredentialType, SnmpAuthAlgorithm, SnmpPrivacyAlgorithm, CredentialFormat
 from typing import Annotated, Optional
 import logging
@@ -74,8 +75,11 @@ def create_credential(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.create_credential(name=name,credential_type=credential_type,comment=comment,allow_insecure=allow_insecure,certificate=certificate,key_phrase=key_phrase,private_key=private_key,login=login,password=password,auth_algorithm=auth_algorithm,community=community,privacy_algorithm=privacy_algorithm,privacy_password=privacy_password,public_key=public_key)
-    
+        try:
+            return gmp.create_credential(name=name,credential_type=credential_type,comment=comment,allow_insecure=allow_insecure,certificate=certificate,key_phrase=key_phrase,private_key=private_key,login=login,password=password,auth_algorithm=auth_algorithm,community=community,privacy_algorithm=privacy_algorithm,privacy_password=privacy_password,public_key=public_key)
+        except RequiredArgument as err:
+            return f'<create_credential_response status="500" status_text="{err}"/>'
+
 @ROUTER.get("/get/credential")
 def get_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
@@ -203,5 +207,7 @@ def modify_credential(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.modify_credential(name=name,credential_id=credential_id,comment=comment,allow_insecure=allow_insecure,certificate=certificate,key_phrase=key_phrase,private_key=private_key,login=login,password=password,auth_algorithm=auth_algorithm,community=community,privacy_algorithm=privacy_algorithm,privacy_password=privacy_password,public_key=public_key)
-    
+        try:
+            return gmp.modify_credential(name=name,credential_id=credential_id,comment=comment,allow_insecure=allow_insecure,certificate=certificate,key_phrase=key_phrase,private_key=private_key,login=login,password=password,auth_algorithm=auth_algorithm,community=community,privacy_algorithm=privacy_algorithm,privacy_password=privacy_password,public_key=public_key)
+        except RequiredArgument as err:
+            return f'<modify_credential_response status="500" status_text="{err}"/>'
