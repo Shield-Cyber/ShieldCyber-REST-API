@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Response
 from app.utils.auth import Auth, PASSWORD
 from app.utils.xml import XMLResponse
+from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -44,7 +45,10 @@ async def get_port_lists(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_port_lists(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details,targets=targets)
+        try:
+            return gmp.get_port_lists(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details,targets=targets)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.get("/get/port/list")
 async def get_port_list(
@@ -62,7 +66,10 @@ async def get_port_list(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_port_list(port_list_id=port_list_id)
+        try:
+            return gmp.get_port_list(port_list_id=port_list_id)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.post("/clone/port/list")
 async def clone_port_list(
@@ -80,7 +87,10 @@ async def clone_port_list(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.clone_port_list(port_list_id=port_list_id)
+        try:
+            return gmp.clone_port_list(port_list_id=port_list_id)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.post("/create/port/list")
 async def create_port_list(
@@ -102,7 +112,10 @@ async def create_port_list(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.create_port_list(name=name, port_range=port_range, comment=comment)
+        try:
+            return gmp.create_port_list(name=name, port_range=port_range, comment=comment)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.post("/create/port/range")
 async def create_port_range(
@@ -128,7 +141,10 @@ async def create_port_range(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return  gmp.create_port_range(port_list_id=port_list_id,start=start,end=end,port_range_type=port_range_type,comment=comment)
+        try:
+            return gmp.create_port_range(port_list_id=port_list_id,start=start,end=end,port_range_type=port_range_type,comment=comment)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.delete("/delete/port/list")
 async def delete_port_list(
@@ -145,7 +161,10 @@ async def delete_port_list(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.delete_port_list(port_list_id=port_list_id, ultimate=ultimate)
+        try:
+            return gmp.delete_port_list(port_list_id=port_list_id, ultimate=ultimate)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.delete("/delete/port/range")
 async def delete_port_range(
@@ -160,7 +179,10 @@ async def delete_port_range(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.delete_port_range(port_range_id=port_range_id)
+        try:
+            return gmp.delete_port_range(port_range_id=port_range_id)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.patch("/modify/port/list")
 async def modify_port_list(
@@ -182,4 +204,7 @@ async def modify_port_list(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.modify_port_list(port_list_id=port_list_id, comment=comment, name=name)
+        try:
+            return gmp.modify_port_list(port_list_id=port_list_id, comment=comment, name=name)
+        except Exception as err:
+            return ErrorResponse(err)

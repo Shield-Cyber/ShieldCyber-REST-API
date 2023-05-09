@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Response
 from app.utils.auth import Auth, PASSWORD
 from app.utils.xml import XMLResponse
+from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -41,4 +42,7 @@ async def get_scanners(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_scanners(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details)
+        try:
+            return gmp.get_scanners(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details)
+        except Exception as err:
+            return ErrorResponse(err)

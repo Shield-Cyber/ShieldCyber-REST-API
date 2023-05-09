@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from app.utils.auth import Auth, PASSWORD
 from app.utils.xml import XMLResponse
+from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -35,7 +36,10 @@ async def get_user(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_user(user_id=user_id)
+        try:
+            return gmp.get_user(user_id=user_id)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.get("/get/user/settings")
 async def get_user_settings(
@@ -53,7 +57,10 @@ async def get_user_settings(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_user_settings(filter_string=filter_string)
+        try:
+            return gmp.get_user_settings(filter_string=filter_string)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.get("/get/user/setting")
 async def get_user_setting(
@@ -71,7 +78,10 @@ async def get_user_setting(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_user_setting(setting_id=setting_id)
+        try:
+            return gmp.get_user_setting(setting_id=setting_id)
+        except Exception as err:
+            return ErrorResponse(err)
     
 @ROUTER.get("/get/users")
 async def get_users(
@@ -91,4 +101,7 @@ async def get_users(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_users(filter_id=filter_id, filter_string=filter_string)
+        try:
+            return gmp.get_users(filter_id=filter_id, filter_string=filter_string)
+        except Exception as err:
+            return ErrorResponse(err)
