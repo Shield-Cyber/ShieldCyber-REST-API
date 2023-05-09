@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Response
 from app.utils.auth import Auth, PASSWORD
 from app.utils.xml import XMLResponse
+from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -48,7 +49,10 @@ async def get_report(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details)
+        try:
+            return gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.get("/get/reports")
 async def get_reports(
@@ -76,7 +80,10 @@ async def get_reports(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_reports(filter_string=filter_string,filter_id=filter_id,note_details=note_details,override_details=override_details,ignore_pagination=ignore_pagination,details=details)
+        try:
+            return gmp.get_reports(filter_string=filter_string,filter_id=filter_id,note_details=note_details,override_details=override_details,ignore_pagination=ignore_pagination,details=details)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.get("/get/report/format")
 async def get_report_format(
@@ -93,7 +100,10 @@ async def get_report_format(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_report_format(report_format_id=report_format_id)
+        try:
+            return gmp.get_report_format(report_format_id=report_format_id)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.get("/get/report/formats")
 async def get_report_formats(
@@ -115,7 +125,10 @@ async def get_report_formats(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_report_formats(filter_string=filter_string,filter_id=filter_id,trash=trash,alerts=alerts,params=params,details=details)
+        try:
+            return gmp.get_report_formats(filter_string=filter_string,filter_id=filter_id,trash=trash,alerts=alerts,params=params,details=details)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.post("/clone/report/formats")
 async def get_report_formats(
@@ -133,7 +146,10 @@ async def get_report_formats(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.clone_report_format(report_format_id=report_format_id)
+        try:
+            return gmp.clone_report_format(report_format_id=report_format_id)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.delete("/delete/report")
 async def delete_report(
@@ -148,7 +164,10 @@ async def delete_report(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.delete_report(report_id=report_id)
+        try:
+            return gmp.delete_report(report_id=report_id)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.delete("/delete/report/format")
 async def delete_report(
@@ -166,7 +185,10 @@ async def delete_report(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.delete_report_format(report_format_id=report_format_id)
+        try:
+            return gmp.delete_report_format(report_format_id=report_format_id)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.post("/import/report")
 async def import_report(
@@ -188,7 +210,10 @@ async def import_report(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.import_report(report=report,task_id=task_id,in_assets=in_assets)
+        try:
+            return gmp.import_report(report=report,task_id=task_id,in_assets=in_assets)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.post("/import/report/format")
 async def import_report_format(
@@ -206,7 +231,10 @@ async def import_report_format(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.import_report_format(report_format=report_format)
+        try:
+            return gmp.import_report_format(report_format=report_format)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.patch("/modify/report/format")
 async def modify_report_format(
@@ -234,7 +262,10 @@ async def modify_report_format(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.modify_report_format(report_format_id=report_format_id,active=active,name=name,summary=summary,param_name=param_name,param_value=param_value)
+        try:
+            return gmp.modify_report_format(report_format_id=report_format_id,active=active,name=name,summary=summary,param_name=param_name,param_value=param_value)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.get("/verify/report/format")
 async def verify_report_format(
@@ -258,7 +289,10 @@ async def verify_report_format(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.verify_report_format(report_format_id=report_format_id)
+        try:
+            return gmp.verify_report_format(report_format_id=report_format_id)
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.get("/get/system/reports")
 async def get_system_reports(
@@ -287,4 +321,7 @@ async def get_system_reports(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_system_reports(name=name,duration=duration,start_time=start_time,end_time=end_time,brief=brief,slave_id=slave_id)
+        try:
+            return gmp.get_system_reports(name=name,duration=duration,start_time=start_time,end_time=end_time,brief=brief,slave_id=slave_id)
+        except Exception as err:
+            return ErrorResponse(err)

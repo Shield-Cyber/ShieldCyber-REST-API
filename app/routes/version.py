@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Response
 from app.utils.auth import Auth
 from app.utils.xml import XMLResponse
+from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -29,7 +30,10 @@ async def get_version(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        return gmp.get_version()
+        try:
+            return gmp.get_version()
+        except Exception as err:
+            return ErrorResponse(err)
     
 @ROUTER.get("/get/protocol/version")
 async def get_protocol_version(
@@ -41,8 +45,11 @@ async def get_protocol_version(
             tuple: Implemented version of the Greenbone Management Protocol
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        content = str(gmp.get_protocol_version())
-        return Response(content=content, media_type="application/xml")
+        try:
+            content = str(gmp.get_protocol_version())
+            return Response(content=content, media_type="application/xml")
+        except Exception as err:
+            return ErrorResponse(err)
     
 @ROUTER.get("/get/api/version")
 async def get_api_version(

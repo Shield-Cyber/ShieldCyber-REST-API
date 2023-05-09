@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from app.utils.auth import Auth, PASSWORD
 from app.utils.xml import XMLResponse
+from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -67,8 +68,8 @@ async def create_target(
         gmp.authenticate(username=current_user.username, password=PASSWORD)
         try:
             return gmp.create_target(name=name,asset_hosts_filter=asset_hosts_filter,hosts=hosts,comment=comment,exclude_hosts=exclude_hosts,ssh_credential_id=ssh_credential_id,ssh_credential_port=ssh_credential_port,smb_credential_id=smb_credential_id,esxi_credential_id=esxi_credential_id,snmp_credential_id=snmp_credential_id,alive_test=alive_test,reverse_lookup_only=reverse_lookup_only,reverse_lookup_unify=reverse_lookup_unify,port_range=port_range,port_list_id=port_list_id)
-        except RequiredArgument as err:
-            return f'<create_target_response status="500" status_text="{err}"/>'
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.get("/get/target")
 async def get_target(
@@ -88,7 +89,10 @@ async def get_target(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_target(target_id=target_id, tasks=tasks)
+        try:
+            return gmp.get_target(target_id=target_id, tasks=tasks)
+        except Exception as err:
+            return ErrorResponse(err)
     
 @ROUTER.get("/get/targets")
 async def get_targets(
@@ -112,7 +116,10 @@ async def get_targets(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_targets(filter_string=filter_string,filter_id=filter_id,trash=trash,tasks=tasks)
+        try:
+            return gmp.get_targets(filter_string=filter_string,filter_id=filter_id,trash=trash,tasks=tasks)
+        except Exception as err:
+            return ErrorResponse(err)
     
 @ROUTER.post("/clone/target")
 async def clone_target(
@@ -130,7 +137,10 @@ async def clone_target(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.clone_target(target_id=target_id)
+        try:
+            return gmp.clone_target(target_id=target_id)
+        except Exception as err:
+            return ErrorResponse(err)
     
 @ROUTER.delete("/delete/target")
 async def delete_target(
@@ -147,7 +157,10 @@ async def delete_target(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.delete_target(target_id=target_id, ultimate=ultimate)
+        try:
+            return gmp.delete_target(target_id=target_id, ultimate=ultimate)
+        except Exception as err:
+            return ErrorResponse(err)
     
 @ROUTER.patch("/modify/target")
 async def delete_target(
@@ -193,4 +206,7 @@ async def delete_target(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.modify_target(target_id=target_id,name=name,comment=comment,hosts=hosts,exclude_hosts=exclude_hosts,ssh_credential_id=ssh_credential_id,ssh_credential_port=ssh_credential_port,smb_credential_id=smb_credential_id,esxi_credential_id=esxi_credential_id,snmp_credential_id=snmp_credential_id,alive_test=alive_test,allow_simultaneous_ips=allow_simultaneous_ips,reverse_lookup_only=reverse_lookup_only,reverse_lookup_unify=reverse_lookup_unify,port_list_id=port_list_id)
+        try:
+            return gmp.modify_target(target_id=target_id,name=name,comment=comment,hosts=hosts,exclude_hosts=exclude_hosts,ssh_credential_id=ssh_credential_id,ssh_credential_port=ssh_credential_port,smb_credential_id=smb_credential_id,esxi_credential_id=esxi_credential_id,snmp_credential_id=snmp_credential_id,alive_test=alive_test,allow_simultaneous_ips=allow_simultaneous_ips,reverse_lookup_only=reverse_lookup_only,reverse_lookup_unify=reverse_lookup_unify,port_list_id=port_list_id)
+        except Exception as err:
+            return ErrorResponse(err)

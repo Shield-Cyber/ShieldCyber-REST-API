@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from app.utils.auth import Auth, users_db, ACCESS_TOKEN_EXPIRE_MINUTES, PASSWORD
 from app.utils.xml import XMLResponse
+from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
 from gvm.connections import UnixSocketConnection
 from typing import Annotated
@@ -50,7 +51,10 @@ async def describe_auth(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return XMLResponse(gmp.describe_auth())
+        try:
+            return XMLResponse(gmp.describe_auth())
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.get("/is_authenticated", response_class=XMLResponse)
 async def is_authenticated(
@@ -67,8 +71,11 @@ async def is_authenticated(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        response = str(gmp.is_authenticated())
-        return XMLResponse(f'<is_authenticated_response status="200" status_text="{response}"/>')
+        try:
+            response = str(gmp.is_authenticated())
+            return XMLResponse(f'<is_authenticated_response status="200" status_text="{response}"/>')
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.patch("/modify_auth", response_class=XMLResponse)
 async def modify_auth(
@@ -88,4 +95,7 @@ async def modify_auth(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return XMLResponse(gmp.modify_auth(group_name=group_name, auth_conf_settings=auth_conf_settings))
+        try:
+            return XMLResponse(gmp.modify_auth(group_name=group_name, auth_conf_settings=auth_conf_settings))
+        except Exception as err:
+            return ErrorResponse(err)

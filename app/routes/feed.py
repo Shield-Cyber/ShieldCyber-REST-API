@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from app.utils.auth import Auth, PASSWORD
 from app.utils.xml import XMLResponse
+from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
@@ -31,7 +32,10 @@ async def get_feeds(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_feeds()
+        try:
+            return gmp.get_feeds()
+        except Exception as err:
+            return ErrorResponse(err)
 
 @ROUTER.get("/get/feed")
 async def get_feed(
@@ -49,5 +53,8 @@ async def get_feed(
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=PASSWORD)
-        return gmp.get_feed(feed_type=feed_type)
+        try:
+            return gmp.get_feed(feed_type=feed_type)
+        except Exception as err:
+            return ErrorResponse(err)
     
