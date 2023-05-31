@@ -1,4 +1,4 @@
-python-gvm==23.5.0
+python-gvm==23.5.1
 fastapi==0.95.2
 python-multipart==0.0.6
 uvicorn[standard]==0.22.0
