@@ -1,4 +1,4 @@
-FROM python:3.11.3
+FROM python:3.11.4
 
 RUN curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
 RUN chmod +x mkcert-v*-linux-amd64
