@@ -1,20 +1,27 @@
-from sqlalchemy.orm import Session
-from . import models, schemas
-from passlib.context import CryptContext
+from app.database.db import REDIS, LOGGING_PREFIX
+import logging
 
-def get_user(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.crud")
 
-def get_user_by_username(db: Session, username: str):
-    return db.query(models.User).filter(models.User.username == username).first()
+def create(key, value):
+    LOGGER.info(f"Creating key / value pair: {key}.")
+    response = REDIS.set(key, value)
+    return response
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.User).offset(skip).limit(limit).all()
+def read(key):
+    LOGGER.info(f"Reading key / value pair: {key}.")
+    response = REDIS.get(key)
+    return response
 
-def create_user(db: Session, user: schemas.UserCreate):
-    hashed_password = CryptContext(schemes=["bcrypt"], deprecated="auto").hash(user.password)
-    db_user = models.User(username=user.username, hashed_password=hashed_password)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+def update(key, value):
+    LOGGER.info(f"Updating key / value pair: {key}.")
+    response = REDIS.set(key, value)
+    return response
+
+def delete(key):
+    LOGGER.info(f"Deleting key / value pair: {key}.")
+    response = REDIS.delete(key)
+    if response == 1:
+        return True
+    else:
+        return False
