@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
-from app.utils.auth import Auth, users_db, ACCESS_TOKEN_EXPIRE_MINUTES, PASSWORD
+from app.utils.auth import Auth, users_db, ACCESS_TOKEN_EXPIRE_MINUTES
 from app.utils.xml import XMLResponse
 from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
@@ -50,7 +50,7 @@ async def describe_auth(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return XMLResponse(gmp.describe_auth())
         except Exception as err:
@@ -70,7 +70,7 @@ async def is_authenticated(
             established.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             response = str(gmp.is_authenticated())
             return XMLResponse(f'<is_authenticated_response status="200" status_text="{response}"/>')
@@ -94,7 +94,7 @@ async def modify_auth(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return XMLResponse(gmp.modify_auth(group_name=group_name, auth_conf_settings=auth_conf_settings))
         except Exception as err:

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from app.utils.auth import Auth, PASSWORD
+from app.utils.auth import Auth
 from app.utils.xml import XMLResponse
 from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
@@ -35,7 +35,7 @@ async def get_user(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_user(user_id=user_id)
         except Exception as err:
@@ -56,7 +56,7 @@ async def get_user_settings(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_user_settings(filter_string=filter_string)
         except Exception as err:
@@ -77,7 +77,7 @@ async def get_user_setting(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_user_setting(setting_id=setting_id)
         except Exception as err:
@@ -100,7 +100,7 @@ async def get_users(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_users(filter_id=filter_id, filter_string=filter_string)
         except Exception as err:
