@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from app.utils.auth import Auth, PASSWORD
+from app.utils.auth import Auth
 from app.utils.xml import XMLResponse
 from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
@@ -31,7 +31,7 @@ async def get_feeds(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_feeds()
         except Exception as err:
@@ -52,7 +52,7 @@ async def get_feed(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_feed(feed_type=feed_type)
         except Exception as err:

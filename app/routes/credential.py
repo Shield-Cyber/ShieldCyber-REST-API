@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Body
 from app import LOGGING_PREFIX
-from app.utils.auth import Auth, PASSWORD
+from app.utils.auth import Auth
 from app.utils.xml import XMLResponse
 from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
@@ -75,7 +75,7 @@ def create_credential(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.create_credential(name=name,credential_type=credential_type,comment=comment,allow_insecure=allow_insecure,certificate=certificate,key_phrase=key_phrase,private_key=private_key,login=login,password=password,auth_algorithm=auth_algorithm,community=community,privacy_algorithm=privacy_algorithm,privacy_password=privacy_password,public_key=public_key)
         except Exception as err:
@@ -102,7 +102,7 @@ def get_credential(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_credential(credential_id=credential_id,scanners=scanners,targets=targets,credential_format=credential_format)
         except Exception as err:
@@ -131,7 +131,7 @@ def get_credentials(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_credentials(filter_string=filter_string,filter_id=filter_id,scanners=scanners,trash=trash,targets=targets)
         except Exception as err:
@@ -152,7 +152,7 @@ def clone_credential(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.clone_credential(credential_id=credential_id)
         except Exception as err:
@@ -172,7 +172,7 @@ def delete_credential(
             ultimate: Whether to remove entirely, or to the trashcan.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.delete_credential(credential_id=credential_id, ultimate=ultimate)
         except Exception as err:
@@ -219,7 +219,7 @@ def modify_credential(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.modify_credential(name=name,credential_id=credential_id,comment=comment,allow_insecure=allow_insecure,certificate=certificate,key_phrase=key_phrase,private_key=private_key,login=login,password=password,auth_algorithm=auth_algorithm,community=community,privacy_algorithm=privacy_algorithm,privacy_password=privacy_password,public_key=public_key)
         except Exception as err:

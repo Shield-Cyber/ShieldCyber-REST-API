@@ -38,3 +38,8 @@ loggers:
     level: DEBUG
     handlers: [console, latest, debug]
     propagate: no
+
+  database:
+    level: DEBUG
+    handlers: [console, latest, debug]
+    propagate: no

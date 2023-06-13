@@ -7,6 +7,8 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 import logging
 from app import LOGGING_PREFIX, USERNAME, PASSWORD
+from app.database import crud as DATABASE
+import pickle
 
 LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.auth")
 
@@ -14,13 +16,25 @@ SECRET_KEY = "5ef48f2decbe7df5467a771018a2d33d05d4b8d896751d72cb80c71883c483f8"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-users_db = {
-    "admin": {
-        "username": USERNAME,
-        "hashed_password": CryptContext(schemes=["bcrypt"], deprecated="auto").hash(PASSWORD),
-        "disabled": False,
+read_db = DATABASE.read("users")
+
+if read_db == None:
+    LOGGER.warn("Users Database not Found.")
+    temp_db = {
+        "admin": {
+            "username": USERNAME,
+            "password": PASSWORD,
+            "hashed_password": CryptContext(schemes=["bcrypt"], deprecated="auto").hash(PASSWORD),
+            "disabled": False,
+        }
     }
-}
+    DATABASE.create("users", pickle.dumps(temp_db))
+    temp_db = None
+    LOGGER.info("Users Database Created.")
+    users_db: dict = pickle.loads(DATABASE.read("users"))
+else:
+    LOGGER.info("Users Database Found.")
+    users_db: dict = pickle.loads(DATABASE.read("users"))
 
 class Auth():
 
@@ -49,6 +63,11 @@ class Auth():
     def get_password_hash(password):
         LOGGER.debug("Getting Password Hash")
         return Auth.pwd_context.hash(password)
+    
+    # I hate this, its terrible and it should be changed to make something actually secure and not stupid.
+    def get_admin_password():
+        LOGGER.debug("Getting Cleartext Admin Password: This is a bad practice, please change this in the future.\nThis is only used for API endpoints to connect to the OpenVAS Scanner. Until I make a better solution this is what we got.")
+        return users_db["admin"]["password"]
 
     def get_user(db, username: str):
         LOGGER.debug(f"Getting User '{username}' from Database")

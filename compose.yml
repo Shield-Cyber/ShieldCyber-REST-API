@@ -181,10 +181,20 @@ services:
       - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
     depends_on:
       - gvmd
+      - redis-db
     volumes:
       - gvmd_socket_vol:/run/gvmd
       - api_logs_vol:/logs
-      - api_db_vol:/database
+
+# Redis Database for Rest API
+  redis-db:
+    image: redis
+    command: "redis-server --appendonly yes"
+    restart: on-failure
+    expose:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
 
 volumes:
   gpg_data_vol:
@@ -200,4 +210,4 @@ volumes:
   ospd_openvas_socket_vol:
   redis_socket_vol:
   api_logs_vol:
-  api_db_vol:
+  redis_data:

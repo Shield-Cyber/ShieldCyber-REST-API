@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Response
-from app.utils.auth import Auth, PASSWORD
+from app.utils.auth import Auth
 from app.utils.xml import XMLResponse
 from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
@@ -44,7 +44,7 @@ async def get_port_lists(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_port_lists(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details,targets=targets)
         except Exception as err:
@@ -65,7 +65,7 @@ async def get_port_list(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_port_list(port_list_id=port_list_id)
         except Exception as err:
@@ -86,7 +86,7 @@ async def clone_port_list(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.clone_port_list(port_list_id=port_list_id)
         except Exception as err:
@@ -111,7 +111,7 @@ async def create_port_list(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.create_port_list(name=name, port_range=port_range, comment=comment)
         except Exception as err:
@@ -140,7 +140,7 @@ async def create_port_range(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.create_port_range(port_list_id=port_list_id,start=start,end=end,port_range_type=port_range_type,comment=comment)
         except Exception as err:
@@ -160,7 +160,7 @@ async def delete_port_list(
             ultimate: Whether to remove entirely, or to the trashcan.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.delete_port_list(port_list_id=port_list_id, ultimate=ultimate)
         except Exception as err:
@@ -178,7 +178,7 @@ async def delete_port_range(
             port_range_id: UUID of the port range to be deleted.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.delete_port_range(port_range_id=port_range_id)
         except Exception as err:
@@ -203,7 +203,7 @@ async def modify_port_list(
             The response.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=PASSWORD)
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.modify_port_list(port_list_id=port_list_id, comment=comment, name=name)
         except Exception as err:

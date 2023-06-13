@@ -7,6 +7,7 @@ from app.utils.xml import root as xml_root
 import time
 from app import routes as RT
 from app import DESCRIPTION, LOGGING_PREFIX, VERSION
+from app.database import crud as DB
 
 # Logging
 LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.main")
