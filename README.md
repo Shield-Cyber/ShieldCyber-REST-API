@@ -40,7 +40,7 @@ echo done
 - Greenbone UI: http://x.x.x.x:9392
 
 #### Notes
-- Username is admin
+- Username is _admin_
 - Startup of services may take a few minutes as the databases need to update before the scanner can create and start scans.
 
 ## Windows or MacOS
@@ -61,7 +61,7 @@ echo done
 - Greenbone UI: http://x.x.x.x:9392
 
 #### Notes
-- Username is admin
+- Username is _admin_
 - Startup of services may take a few minutes as the databases need to update before the scanner can create and start scans.
 - Windows and MacOS Environments need to have a user login to the system _BEFORE_ the docker engine will start, this installation is not reccomended for an unattanded or server setup.
 
