@@ -35,6 +35,11 @@ echo done
   - If you do not modifiy this file the password defaults to _admin_
 - Run Command `docker compose up -d`
 
+#### Install Via Script
+- Clonse this Repo
+- CD into Cloned Directory
+- Run install.sh
+
 #### Services
 - API: https://x.x.x.x:8000
 - Greenbone UI: http://x.x.x.x:9392
