@@ -6,6 +6,14 @@
 - [Docker Engine](https://docs.docker.com/engine/install/#server)
 
 Ubuntu / Apt Package Manager Installation Script
+
+Download
+```
+git clone https://github.com/Shield-Cyber/OpenVAS-REST-API.git
+cd OpenVAS-REST-API/
+```
+
+Install dependencies and start the OpenVAS Scanner
 ```
 ./install.sh
 ```
