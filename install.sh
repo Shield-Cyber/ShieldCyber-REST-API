@@ -19,7 +19,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 
 echo Docker Installed
  
-read -p "Enter OpenVAS / API Admin Password: " password
+read -sp "Enter OpenVAS / API Admin Password: " password
 
 touch .env
 
