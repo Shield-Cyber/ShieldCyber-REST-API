@@ -27,7 +27,7 @@ cd OpenVAS-REST-API/ && ./install.sh
 - Run Command `docker compose up -d`
 
 #### Install Via Script
-- Clonse this Repo
+- Clone this Repo
 - CD into Cloned Directory
 - Run install.sh
 
