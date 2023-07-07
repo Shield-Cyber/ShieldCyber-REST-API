@@ -117,7 +117,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./app
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: |
             shield-cyber/openvas-rest-api:${{needs.Release.outputs.v_tag}}
