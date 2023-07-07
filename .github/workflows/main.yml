@@ -116,8 +116,8 @@ jobs:
         with:
           context: ./app
           load: true
-          tags: "openvas_rest_api:latest,openvas_rest_api:${{needs.Release.outputs.steps.version.outputs.version_tag}}"
+          tags: "shield-cyber/openvas-rest-api:${{needs.Release.outputs.steps.version.outputs.version_tag}}"
       -
         name: Inspect
         run: |
-          docker image inspect openvas_rest_api:latest
+          docker image inspect shield-cyber/openvas-rest-api
