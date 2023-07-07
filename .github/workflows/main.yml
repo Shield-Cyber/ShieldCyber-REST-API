@@ -113,26 +113,14 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
-        name: Test Build
+        name: Push Build
         uses: docker/build-push-action@v4
         with:
           context: ./app
           platforms: linux/amd64,linux/arm64
-          load: true
-          tags: shield-cyber/openvas-rest-api:test,shield-cyber/openvas-rest-api:test2
-      -
-        name: Inspect
-        run: |
-          docker image inspect shield-cyber/openvas-rest-api:test
-      # -
-      #   name: Push Build
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: ./app
-      #     platforms: linux/amd64,linux/arm64
-      #     push: true
-      #     tags: |
-      #       shield-cyber/openvas-rest-api:${{needs.Release.outputs.v_tag}}
-      #       shield-cyber/openvas-rest-api:latest
-      #       ghcr.io/shield-cyber/openvas-rest-api:latest
-      #       ghcr.io/shield-cyber/openvas-rest-api:${{needs.Release.outputs.v_tag}}
+          push: true
+          tags: |
+            shield-cyber/openvas-rest-api:${{needs.Release.outputs.v_tag}}
+            shield-cyber/openvas-rest-api:latest
+            ghcr.io/shield-cyber/openvas-rest-api:latest
+            ghcr.io/shield-cyber/openvas-rest-api:${{needs.Release.outputs.v_tag}}
