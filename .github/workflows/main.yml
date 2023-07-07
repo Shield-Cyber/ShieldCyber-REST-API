@@ -144,6 +144,5 @@ jobs:
           context: ./app
           platforms: linux/amd64
           push: true
-          tags: |
-            Shield-Cyber/OpenVAS-REST-API:${{needs.Release.outputs.v_tag}}
-            Shield-Cyber/OpenVAS-REST-API:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
