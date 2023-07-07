@@ -120,7 +120,5 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            shield-cyber/openvas-rest-api:${{needs.Release.outputs.v_tag}}
-            shield-cyber/openvas-rest-api:latest
-            ghcr.io/shield-cyber/openvas-rest-api:latest
-            ghcr.io/shield-cyber/openvas-rest-api:${{needs.Release.outputs.v_tag}}
+            ${{needs.Release.outputs.v_tag}}
+            latest
