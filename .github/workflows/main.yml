@@ -34,6 +34,8 @@ jobs:
   Release:
     # needs: PyTest
     runs-on: ubuntu-latest
+    outputs:
+      v_tag: ${{steps.version.outputs.version_tag}}
     steps:
         - name: Checkout
           uses: actions/checkout@v3
@@ -117,10 +119,10 @@ jobs:
           context: ./app
           load: true
           tags: |
-            shield-cyber/openvas-rest-api:${{needs.Release.outputs.steps.version.outputs.version_tag}}
+            shield-cyber/openvas-rest-api:${{needs.Release.outputs.v_tag}}
             shield-cyber/openvas-rest-api:latest
             ghcr.io/shield-cyber/openvas-rest-api:latest
-            ghcr.io/shield-cyber/openvas-rest-api:${{needs.Release.outputs.steps.version.outputs.version_tag}}
+            ghcr.io/shield-cyber/openvas-rest-api:${{needs.Release.outputs.v_tag}}
 
       # -
       #   name: Inspect
