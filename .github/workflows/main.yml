@@ -116,8 +116,8 @@ jobs:
         with:
           context: ./app
           load: true
-          tags: "latest,${{needs.Release.outputs.steps.version.outputs.version_tag}}"
+          tags: "openvas-rest-api:latest,openvas-rest-api:${{needs.Release.outputs.steps.version.outputs.version_tag}}"
       -
         name: Inspect
         run: |
-          docker image inspect myimage:latest
+          docker image inspect openvas-rest-api:latest
