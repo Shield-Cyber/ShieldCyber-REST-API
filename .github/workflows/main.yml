@@ -99,4 +99,4 @@ jobs:
           context: ./app
           file: ./Dockerfile
           push: true
-          tags: "Shield-Cyber/openvas-rest-api:latest,Shield-Cyber/openvas-rest-api:${{needs.Release.outputs.steps.version.outputs.version_tag}}"
+          tags: "latest,${{needs.Release.outputs.steps.version.outputs.version_tag}}"
