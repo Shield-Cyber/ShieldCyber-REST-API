@@ -119,11 +119,11 @@ jobs:
           context: ./app
           platforms: linux/amd64,linux/arm64
           load: true
-          tags: test/test:test,test2/test2:test2
+          tags: shield-cyber/openvas-rest-api:test,shield-cyber/openvas-rest-api:test2
       -
         name: Inspect
         run: |
-          docker image inspect test/test:test
+          docker image inspect shield-cyber/openvas-rest-api:test
       # -
       #   name: Push Build
       #   uses: docker/build-push-action@v4
