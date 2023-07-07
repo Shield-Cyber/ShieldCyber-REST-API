@@ -124,6 +124,9 @@ jobs:
           tags: |
             type=ref,event=tag
             type=pep440,pattern={{version}}
+            type=semver,pattern={{version}}
+          flavor: |
+            latest=auto
 
           # generate Docker tags based on the following events/attributes
           # tags: |
