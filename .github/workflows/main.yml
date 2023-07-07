@@ -120,5 +120,5 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ${{needs.Release.outputs.v_tag}}
-            latest
+            Shield-Cyber/OpenVAS-REST-API:${{needs.Release.outputs.v_tag}}
+            Shield-Cyber/OpenVAS-REST-API:latest
