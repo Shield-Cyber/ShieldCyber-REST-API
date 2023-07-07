@@ -121,7 +121,10 @@ jobs:
           images: |
            shield-cyber/openvas-rest-api
            ghcr.io/shield-cyber/openvas-rest-api
-          tags: type=ref,event=tag
+          tags: |
+            type=ref,event=tag
+            type=pep440,pattern={{version}}
+
           # generate Docker tags based on the following events/attributes
           # tags: |
           #   type=schedule
