@@ -145,6 +145,7 @@ jobs:
           write-comment: false
           # Getting All Vulns by Default
           # only-severities: critical,high
+          only-fixed: true
           image: ${{ steps.meta.outputs.tags }}
           sarif-file: ./sarif.output.json.sarif
           summary: true
