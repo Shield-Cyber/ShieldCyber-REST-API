@@ -11,18 +11,23 @@
 #
 name: "CodeQL"
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 on:
   push:
     branches: [ "main" ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "main" ]
+#     branches: [ "main" ]
   schedule:
-    - cron: '35 20 * * 3'
+    - cron: '0 0 * * 0'
 
 jobs:
+
   analyze:
-    name: Analyze
+    name: Code Scanning
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
     permissions:
@@ -75,3 +80,79 @@ jobs:
       uses: github/codeql-action/analyze@v2
       with:
         category: "/language:${{matrix.language}}"
+
+  scout:
+    name: Docker Scout
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      pull-requests: write
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.3
+
+      -
+        name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2.9.0
+
+      -
+        name: Extract Metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=auto
+
+      -
+        name: Build Scout Image
+        id: build
+        uses: docker/build-push-action@v4
+        with:
+          platforms: linux/amd64
+          context: ./app
+          load: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      -
+        name: Docker Scout Recommendations
+        id: docker-scout-recs
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: docker/scout-action@v0.18.1
+        with:
+          command: compare,recommendations
+          image: ${{ steps.meta.outputs.tags }}
+          # Will change back once bug has been fixed by Docker Team
+          # to: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          to: ${{ env.REGISTRY }}/shield-cyber/openvas-rest-api:latest
+          write-comment: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - 
+        name: Analyze for Critical and High CVEs
+        id: docker-scout-cves
+        # Commit Version that supports Sarif File Output until Real Version Supports
+        uses: docker/scout-action@1889e56711e187a213c163029023456f451a8357
+        with:
+          command: cves
+          write-comment: false
+          # Getting All Vulns by Default
+          # only-severities: critical,high
+          only-fixed: true
+          image: ${{ steps.meta.outputs.tags }}
+          sarif-file: ./sarif.output.json.sarif
+          summary: true
+
+      - 
+        name: Upload SARIF result
+        id: upload-sarif
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ./sarif.output.json.sarif

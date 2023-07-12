@@ -1,9 +1,12 @@
 name: Docker
 
+# This file is to be removed in the future.
+
 on:
-  pull_request:
-    branches: ["main"]
-  release:
+  # pull_request:
+  #   branches: ["main"]
+  # release:
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
