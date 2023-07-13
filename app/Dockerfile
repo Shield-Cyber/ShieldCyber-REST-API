@@ -17,7 +17,7 @@ RUN apt update && \
     -keyout ./certs/key.key \
     -subj "/C=US/ST=IN/L=IN/O=Shield/OU=Shield/CN=www.hopliteconsulting.com"
 
-ENV VERSION=2.7.7
+ENV VERSION=2.7.8
 
 COPY . ./app
 
