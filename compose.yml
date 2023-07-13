@@ -1,52 +1,52 @@
 services:
   vulnerability-tests:
-    image: greenbone/vulnerability-tests
+    image: greenbone/vulnerability-tests:latest
     environment:
       STORAGE_PATH: /var/lib/openvas/22.04/vt-data/nasl
     volumes:
       - vt_data_vol:/mnt
 
   notus-data:
-    image: greenbone/notus-data
+    image: greenbone/notus-data:latest
     volumes:
       - notus_data_vol:/mnt
 
   scap-data:
-    image: greenbone/scap-data
+    image: greenbone/scap-data:latest
     volumes:
       - scap_data_vol:/mnt
 
   cert-bund-data:
-    image: greenbone/cert-bund-data
+    image: greenbone/cert-bund-data:latest
     volumes:
       - cert_data_vol:/mnt
 
   dfn-cert-data:
-    image: greenbone/dfn-cert-data
+    image: greenbone/dfn-cert-data:latest
     volumes:
       - cert_data_vol:/mnt
     depends_on:
       - cert-bund-data
 
   data-objects:
-    image: greenbone/data-objects
+    image: greenbone/data-objects:latest
     volumes:
       - data_objects_vol:/mnt
 
   report-formats:
-    image: greenbone/report-formats
+    image: greenbone/report-formats:latest
     volumes:
       - data_objects_vol:/mnt
     depends_on:
       - data-objects
 
   gpg-data:
-    image: greenbone/gpg-data
+    image: greenbone/gpg-data:latest
     volumes:
       - gpg_data_vol:/mnt
 
   redis-server:
-    image: greenbone/redis-server
+    image: greenbone/redis-server:latest
     restart: on-failure
     volumes:
       - redis_socket_vol:/run/redis/
@@ -138,7 +138,7 @@ services:
 
   mqtt-broker:
     restart: on-failure
-    image: greenbone/mqtt-broker
+    image: greenbone/mqtt-broker:latest
     ports:
       - 1883:1883
     networks:
@@ -162,7 +162,7 @@ services:
       - vulnerability-tests
 
   gvm-tools:
-    image: greenbone/gvm-tools
+    image: greenbone/gvm-tools:latest
     volumes:
       - gvmd_socket_vol:/run/gvmd
       - ospd_openvas_socket_vol:/run/ospd
@@ -172,7 +172,7 @@ services:
 
 # Rest API
   rest-api:
-    build: ./app
+    image: ghcr.io/shield-cyber/openvas-rest-api:latest
     restart: on-failure
     ports:
       - 8000:8000
@@ -188,7 +188,7 @@ services:
 
 # Redis Database for Rest API
   redis-db:
-    image: redis
+    image: redis:latest
     command: "redis-server --appendonly yes"
     restart: on-failure
     expose:
