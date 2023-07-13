@@ -30,4 +30,6 @@ jobs:
       
       -
         name: PR
-        run: gh pr create --title "pr" --body "od" --base "dev" --head "main"
+        run: |
+          ghpr() { gh pr create $* || gh pr edit $* }
+          ghpr --title "pr" --body "od" --base "dev" --head "main"
