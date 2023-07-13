@@ -15,7 +15,7 @@ env:
 jobs:
   devPR:
     name: Pull Request to Dev Branch
-    
+    continue-on-error: true
     runs-on: ubuntu-latest
     
     steps:
