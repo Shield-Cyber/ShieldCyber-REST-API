@@ -2,6 +2,10 @@
 
 # Installation Instructions
 
+[Linux Script (Recommended Method)](#Install-Via-Script)
+[Linux Manual](#Linux)
+[Windows/MacOS Manual](#Windows-or-MacOS)
+
 ## Linux
 
 #### Dependecies
@@ -29,9 +33,12 @@ cd OpenVAS-REST-API/ && ./install.sh
 - Run Command `docker compose up -d`
 
 #### Install Via Script
-- Clone this Repo
-- CD into Cloned Directory
+- Make Dir for Install
+- CD into Dir
+- Download this file.
+  `wget https://raw.githubusercontent.com/Shield-Cyber/OpenVAS-REST-API/main/install.sh`
 - Run install.sh
+- Follow Prompts
 
 #### Services
 - API: https://x.x.x.x:8000
