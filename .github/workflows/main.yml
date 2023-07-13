@@ -10,7 +10,7 @@ permissions:
   
 env:
   GH_TOKEN: ${{ github.token }}
-  COMMAND: '--title "Update Dev with Main" --base "dev" --head "main"'
+  COMMAND: '--title "Update Dev with Main" --body "**Auto PR**" --base "dev" --head "main" --label auto-pr'
       
 jobs:
   devPR:
