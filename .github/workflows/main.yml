@@ -5,10 +5,17 @@ on:
     branches:
       - main
       
+permissions:
+  pull-requests: write
+  
+env:
+  GH_TOKEN: ${{ github.token }}
+  COMMAND: '--title "Update Dev with Main" --body "**Auto PR**"'
+      
 jobs:
   devPR:
     name: Pull Request to Dev Branch
-    
+    continue-on-error: true
     runs-on: ubuntu-latest
     
     steps:
@@ -16,12 +23,11 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3.5.3
       
-      -
-        name: Create Pull Request
-        uses: devops-infra/action-pull-request@v0.5.5
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          source_branch: dev
-          target_branch: main
-          title: Update Dev Branch
-          label: auto-pr
+      - name: Try to Edit Pull Request
+        run: |
+          gh pr edit ${{ env.COMMAND }}
+      
+      - name: Try to Create Pull Request
+        if: ${{ failure() }}
+        run: |
+          gh pr create ${{ env.COMMAND }} --base "dev" --head "main" --label auto-pr
