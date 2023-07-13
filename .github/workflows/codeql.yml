@@ -127,7 +127,8 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         uses: docker/scout-action@v0.18.1
         with:
-          command: compare,recommendations
+          # command: compare,recommendations
+          command: recommendations
           image: ${{ steps.meta.outputs.tags }}
           # Will change back once bug has been fixed by Docker Team
           # to: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest

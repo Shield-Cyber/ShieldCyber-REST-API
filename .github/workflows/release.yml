@@ -1,21 +1,16 @@
 name: Release
 on:
-#   pull_request:
-#     types:
-#     - closed
-#     branches:
-#     - main
   push:
     branches:
       - main
-  workflow_dispatch:
   
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   
 jobs:
-  # PyTest:
+  # pytest:
+  #   name: Pytest
   #   runs-on: ubuntu-latest
   #   strategy:
   #     matrix:
@@ -36,8 +31,9 @@ jobs:
   #       - name: Run PyTest
   #         run: |
   #           pytest
-  Source:
-    # needs: PyTest
+  source:
+    name: Source
+    # needs: pytest
     runs-on: ubuntu-latest
     outputs:
       v_tag: ${{steps.version.outputs.version_tag}}
@@ -85,8 +81,9 @@ jobs:
             omitNameDuringUpdate: true
             omitPrereleaseDuringUpdate: true
 
-  Container:
-    needs: Source
+  container:
+    name: Container
+    needs: source
 
     if: github.event_name != 'pull_request'
     
@@ -123,7 +120,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            ${{ needs.Source.outputs.v_tag }}
+            ${{ needs.source.outputs.v_tag }}
             latest
           flavor: |
             latest=auto
