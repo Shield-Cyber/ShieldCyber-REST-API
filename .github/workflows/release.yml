@@ -3,6 +3,12 @@ on:
   push:
     branches:
       - main
+    paths:
+      - app/**
+      - test/**
+      - compose.yml
+      - install.sh
+      - example.env
   
 env:
   REGISTRY: ghcr.io
