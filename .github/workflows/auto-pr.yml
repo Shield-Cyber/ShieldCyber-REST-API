@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - dev
       
 permissions:
   pull-requests: write
@@ -32,22 +31,3 @@ jobs:
         if: ${{ failure() }}
         run: |
           gh pr create ${{ env.COMMAND }} --base "dev" --head "main" --label auto-pr
-
-  mainPR:
-    name: Pull Request to Main Branch
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    
-    steps:
-      - 
-        name: Checkout
-        uses: actions/checkout@v3.5.3
-      
-      - name: Try to Edit Pull Request
-        run: |
-          gh pr edit ${{ env.COMMAND }}
-      
-      - name: Try to Create Pull Request
-        if: ${{ failure() }}
-        run: |
-          gh pr create ${{ env.COMMAND }} --base "main" --head "dev" --label auto-pr
