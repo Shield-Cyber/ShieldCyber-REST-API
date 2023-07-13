@@ -1,0 +1,27 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - main
+      
+jobs:
+  devPR:
+    name: Pull Request to Dev Branch
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v3.5.3
+      
+      -
+        name: Create Pull Request
+        uses: devops-infra/action-pull-request@v0.5.5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_branch: main
+          target_branch: dev
+          title: Update Dev Branch
+          label: auto-pr
