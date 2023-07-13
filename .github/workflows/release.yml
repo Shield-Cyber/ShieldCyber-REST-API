@@ -9,6 +9,7 @@ on:
       - compose.yml
       - install.sh
       - example.env
+      - .github/workflows/release.yml
   
 env:
   REGISTRY: ghcr.io
