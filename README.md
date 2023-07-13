@@ -2,9 +2,11 @@
 
 # Installation Instructions
 
-[Linux Script (Recommended Method)](#Install-Via-Script)
-[Linux Manual](#Linux)
-[Windows/MacOS Manual](#Windows-or-MacOS)
+[Linux Script (Recommended Method)](#install-via-script)
+
+[Linux Manual](#linux)
+
+[Windows/MacOS Manual](#windows-or-macos)
 
 ## Linux
 
