@@ -22,14 +22,8 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3.5.3
       
-    #  - 
-     #   name: Create Pull Request
-      #  run: |
-       #   gh_pr_up() { gh pr create $* || gh pr edit $* }
-        #  gh_pr_up --title "My pull request" --body "Description"
-      
-      -
-        name: PR
+      - 
+        name: Create Pull Request
         run: |
-          ghpr() { gh pr create $* || gh pr edit $* }
-          ghpr --title "pr" --body "od" --base "dev" --head "main"
+          ghpr() { gh pr create $* || gh pr edit $* };
+          ghpr --title "Update Dev with Main" --base "dev" --head "main"
