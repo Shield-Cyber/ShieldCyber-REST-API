@@ -120,7 +120,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            ${{ needs.Source.outputs.v_tag }}
+            ${{ needs.source.outputs.v_tag }}
             latest
           flavor: |
             latest=auto
