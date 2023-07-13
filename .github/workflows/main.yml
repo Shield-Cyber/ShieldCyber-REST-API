@@ -10,6 +10,7 @@ permissions:
   
 env:
   GH_TOKEN: ${{ github.token }}
+  COMMAND: '--title "Update Dev with Main" --base "dev" --head "main"'
       
 jobs:
   devPR:
@@ -22,8 +23,11 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3.5.3
       
-      - name: Create Pull Request
+      - name: Try to Edit Pull Request
         run: |
-          ghpr() { gh pr create $* || gh pr edit $* }
-          ghpr --title "Update Dev with Main" --base "dev" --head "main"
-
+          gh pr edit ${{ env.COMMAND }}
+      
+      - name: Try to Create Pull Request
+        if: ${{ failure() }}
+        run: |
+          gh pr create ${{ env.COMMAND }}
