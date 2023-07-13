@@ -10,7 +10,7 @@ permissions:
   
 env:
   GH_TOKEN: ${{ github.token }}
-  COMMAND: '--title "Update Dev with Main" --body "**Auto PR**" --base "dev" --head "main" --label auto-pr'
+  COMMAND: '--title "Update Dev with Main" --body "**Auto PR**" --label auto-pr'
       
 jobs:
   devPR:
@@ -30,4 +30,4 @@ jobs:
       - name: Try to Create Pull Request
         if: ${{ failure() }}
         run: |
-          gh pr create ${{ env.COMMAND }}
+          gh pr create ${{ env.COMMAND }} --base "dev" --head "main"
