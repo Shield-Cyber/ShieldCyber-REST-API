@@ -25,5 +25,5 @@ jobs:
       - 
         name: Create Pull Request
         run: |
-          ghpr() { gh pr create $* || gh pr edit $* };
+          ghpr() { gh pr create $*; || gh pr edit $*; };
           ghpr --title "Update Dev with Main" --base "dev" --head "main"
