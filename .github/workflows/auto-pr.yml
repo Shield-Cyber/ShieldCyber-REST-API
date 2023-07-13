@@ -1,4 +1,4 @@
-name: Dev Auto PR
+name: Auto PR
 
 on:
   push:
