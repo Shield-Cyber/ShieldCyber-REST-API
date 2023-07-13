@@ -63,7 +63,7 @@ services:
     restart: on-failure
     environment:
       - USERNAME=admin # DEFAULT USERNAME 'admin'
-      - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
+      - PASSWORD=${PASSWORD:-admin} # Admin Password Set by Env File
     volumes:
       - gvmd_data_vol:/var/lib/gvm
       - scap_data_vol:/var/lib/gvm/scap-data/
