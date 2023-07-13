@@ -137,7 +137,7 @@ jobs:
         uses: docker/build-push-action@v4
         if: ${{ github.event_name != 'pull_request' }}
         with:
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           context: ./app
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
