@@ -23,4 +23,4 @@ jobs:
         name: Create Pull Request
         run: |
           gh_pr_up() { gh pr create $* || gh pr edit $* }
-          gh_pr_up --base "dev" --title "My pull request" --body "Description"
+          gh_pr_up --title "My pull request" --body "Description"
