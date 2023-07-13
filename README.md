@@ -37,8 +37,8 @@ cd OpenVAS-REST-API/ && ./install.sh
 #### Install Via Script
 - Make Dir for Install
 - CD into Dir
-- Download this file.
-  `wget https://raw.githubusercontent.com/Shield-Cyber/OpenVAS-REST-API/main/install.sh`
+- Download File
+- `wget https://raw.githubusercontent.com/Shield-Cyber/OpenVAS-REST-API/main/install.sh`
 - Run install.sh
 - Follow Prompts
 
