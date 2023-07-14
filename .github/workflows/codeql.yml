@@ -135,7 +135,7 @@ jobs:
           image: ${{ steps.meta.outputs.tags }}
           # Will change back once bug has been fixed by Docker Team
           # to: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          to: ${{ env.REGISTRY }}/shield-cyber/openvas-rest-api:latest
+          # to: ${{ env.REGISTRY }}/shield-cyber/openvas-rest-api:latest
           write-comment: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
