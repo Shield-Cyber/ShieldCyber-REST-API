@@ -21,6 +21,7 @@ on:
   pull_request:
     paths:
       - app/**
+      - .github/workflows/**
     # The branches below must be a subset of the branches above
 #     branches: [ "main" ]
   schedule:
@@ -127,14 +128,14 @@ jobs:
         name: Docker Scout Recommendations
         id: docker-scout-recs
         if: ${{ github.event_name == 'pull_request' }}
-        uses: docker/scout-action@v0.18.1
+        uses: docker/scout-action@v0.19.0
         with:
           # command: compare,recommendations
           command: recommendations
           image: ${{ steps.meta.outputs.tags }}
           # Will change back once bug has been fixed by Docker Team
-          # to: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          to: ${{ env.REGISTRY }}/shield-cyber/openvas-rest-api:latest
+          to: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          # to: ${{ env.REGISTRY }}/shield-cyber/openvas-rest-api:latest
           write-comment: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
