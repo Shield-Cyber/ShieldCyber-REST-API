@@ -15,7 +15,7 @@ jobs:
   container:
     name: Release Dev Container
 
-    if: github.event.schedule == '0 0 * * *' || github.event_name == 'workflow_dispatch' || githu.event_name == 'push'
+    if: github.event.schedule == '0 0 * * *' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
 
     runs-on: ubuntu-latest
 
