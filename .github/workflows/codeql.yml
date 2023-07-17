@@ -89,7 +89,6 @@ jobs:
   scout:
     name: Docker Scout
     runs-on: ubuntu-latest
-    environment: Docker Hub
 
     permissions:
       contents: read
