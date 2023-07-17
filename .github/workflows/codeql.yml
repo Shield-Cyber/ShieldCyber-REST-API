@@ -87,6 +87,8 @@ jobs:
   scout:
     name: Docker Scout
     runs-on: ubuntu-latest
+    
+    if: github.event_name != 'pull_request'
 
     permissions:
       contents: read
@@ -142,8 +144,9 @@ jobs:
           command: compare,recommendations
           image: ${{ steps.meta.outputs.tags }}
           to: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          write-comment: true
+          write-comment: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          summary: true
 
       - 
         name: Analyze for Critical and High CVEs
