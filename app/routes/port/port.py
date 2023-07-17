@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, Body
 from app.utils.auth import Auth
 from app.utils.xml import XMLResponse
 from app.utils.error import ErrorResponse
@@ -8,6 +8,8 @@ from gvm.connections import UnixSocketConnection
 from typing import Annotated, Optional
 from app import LOGGING_PREFIX
 from gvm.protocols.gmpv208.entities.port_lists import PortRangeType
+
+from .models import PortListBase, PortRangeBase
 
 ENDPOINT = "port"
 
@@ -21,14 +23,14 @@ ROUTER = APIRouter(
 
 ### ROUTES ###
 
-@ROUTER.get("/get/port/lists")
+@ROUTER.get("/get/lists")
 async def get_port_lists(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    filter_string: Optional[str] = None,
-    filter_id: Optional[str] = None,
-    details: Optional[bool] = None,
-    targets: Optional[bool] = None,
-    trash: Optional[bool] = None,
+    filter_string: str | None = None,
+    filter_id: str | None = None,
+    details: bool | None = None,
+    targets: bool | None = None,
+    trash: bool | None = None,
     ):
     """Request a list of port lists
 
@@ -50,7 +52,7 @@ async def get_port_lists(
         except Exception as err:
             return ErrorResponse(err)
 
-@ROUTER.get("/get/port/list")
+@ROUTER.get("/get/list/{port_list_id}")
 async def get_port_list(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     port_list_id: str
@@ -71,7 +73,7 @@ async def get_port_list(
         except Exception as err:
             return ErrorResponse(err)
 
-@ROUTER.post("/clone/port/list")
+@ROUTER.post("/clone/list/{port_list_id}")
 async def clone_port_list(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     port_list_id: str
@@ -92,12 +94,10 @@ async def clone_port_list(
         except Exception as err:
             return ErrorResponse(err)
 
-@ROUTER.post("/create/port/list")
+@ROUTER.post("/create/list")
 async def create_port_list(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    name: str,
-    port_range: str,
-    comment: Optional[str] = None
+    Base: PortListBase
     ):
     """Create a new port list
 
@@ -113,18 +113,14 @@ async def create_port_list(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.create_port_list(name=name, port_range=port_range, comment=comment)
+            return gmp.create_port_list(name=Base.name, port_range=Base.port_range, comment=Base.comment)
         except Exception as err:
             return ErrorResponse(err)
 
-@ROUTER.post("/create/port/range")
+@ROUTER.post("/create/range")
 async def create_port_range(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    port_list_id: str,
-    start: int,
-    end: int,
-    port_range_type: PortRangeType,
-    comment: Optional[str] = None,
+    Base: PortRangeBase
     ):
     """Create new port range
 
@@ -142,11 +138,11 @@ async def create_port_range(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.create_port_range(port_list_id=port_list_id,start=start,end=end,port_range_type=port_range_type,comment=comment)
+            return gmp.create_port_range(port_list_id=Base.port_list_id,start=Base.start,end=Base.end,port_range_type=Base.port_range_type,comment=Base.comment)
         except Exception as err:
             return ErrorResponse(err)
 
-@ROUTER.delete("/delete/port/list")
+@ROUTER.delete("/delete/list/{port_list_id}")
 async def delete_port_list(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     port_list_id: str,
@@ -166,7 +162,7 @@ async def delete_port_list(
         except Exception as err:
             return ErrorResponse(err)
 
-@ROUTER.delete("/delete/port/range")
+@ROUTER.delete("/delete/range/{port_range_id}")
 async def delete_port_range(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     port_range_id: str
@@ -184,12 +180,12 @@ async def delete_port_range(
         except Exception as err:
             return ErrorResponse(err)
 
-@ROUTER.patch("/modify/port/list")
+@ROUTER.patch("/modify/list/{port_list_id}")
 async def modify_port_list(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     port_list_id: str,
-    comment: Optional[str] = None,
-    name: Optional[str] = None,
+    comment: Annotated[Optional[str], Body()] = None,
+    name: Annotated[Optional[str], Body()] = None,
     ):
     """Modifies an existing port list.
 

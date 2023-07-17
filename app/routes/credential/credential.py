@@ -10,6 +10,8 @@ from gvm.protocols.gmpv208.entities.credentials import CredentialType, SnmpAuthA
 from typing import Annotated, Optional
 import logging
 
+from .models import CredentialBase
+
 ENDPOINT = "credential"
 
 LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
@@ -22,23 +24,10 @@ ROUTER = APIRouter(
 
 ### ROUTES ###
 
-@ROUTER.post("/create/credential")
+@ROUTER.post("/create")
 def create_credential(
         current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-        name: str,
-        credential_type: CredentialType,
-        comment: Optional[str] = None,
-        allow_insecure: Optional[bool] = False,
-        certificate: Annotated[str, Body()] = None,
-        key_phrase: Annotated[str, Body()] = None,
-        private_key: Annotated[str, Body()] = None,
-        login: Annotated[str, Body()] = None,
-        password: Annotated[str, Body()] = None,
-        auth_algorithm: Optional[SnmpAuthAlgorithm] = None,
-        community: Annotated[str, Body()] = None,
-        privacy_algorithm: Optional[SnmpPrivacyAlgorithm] = None,
-        privacy_password: Annotated[str, Body()] = None,
-        public_key: Annotated[str, Body()] = None,
+        Base: CredentialBase
 ):
     """Create a new credential
 
@@ -77,11 +66,11 @@ def create_credential(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.create_credential(name=name,credential_type=credential_type,comment=comment,allow_insecure=allow_insecure,certificate=certificate,key_phrase=key_phrase,private_key=private_key,login=login,password=password,auth_algorithm=auth_algorithm,community=community,privacy_algorithm=privacy_algorithm,privacy_password=privacy_password,public_key=public_key)
+            return gmp.create_credential(name=Base.name,credential_type=Base.credential_type,comment=Base.comment,allow_insecure=Base.allow_insecure,certificate=Base.certificate,key_phrase=Base.key_phrase,private_key=Base.private_key,login=Base.login,password=Base.password,auth_algorithm=Base.auth_algorithm,community=Base.community,privacy_algorithm=Base.privacy_algorithm,privacy_password=Base.privacy_password,public_key=Base.public_key)
         except Exception as err:
             return ErrorResponse(err)
 
-@ROUTER.get("/get/credential")
+@ROUTER.get("/get/{credential_id}")
 def get_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     credential_id: str,
@@ -137,7 +126,7 @@ def get_credentials(
         except Exception as err:
             return ErrorResponse(err)
 
-@ROUTER.post("/clone/credential")
+@ROUTER.post("/clone/{credential_id}")
 def clone_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     credential_id: str
@@ -158,7 +147,7 @@ def clone_credential(
         except Exception as err:
             return ErrorResponse(err)
     
-@ROUTER.delete("/delete/credential")
+@ROUTER.delete("/delete/{credential_id}")
 def delete_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     credential_id: str,
@@ -178,23 +167,11 @@ def delete_credential(
         except Exception as err:
             return ErrorResponse(err)
     
-@ROUTER.patch("/modify/credential")
+@ROUTER.patch("/modify/{credential_id}")
 def modify_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     credential_id: str,
-    name: Optional[str] = None,
-    comment: Optional[str] = None,
-    allow_insecure: Optional[bool] = None,
-    certificate: Annotated[str, Body()] = None,
-    key_phrase: Annotated[str, Body()] = None,
-    private_key: Annotated[str, Body()] = None,
-    login: Annotated[str, Body()] = None,
-    password: Annotated[str, Body()] = None,
-    auth_algorithm: Optional[SnmpAuthAlgorithm] = None,
-    community: Annotated[str, Body()] = None,
-    privacy_algorithm: Optional[SnmpPrivacyAlgorithm] = None,
-    privacy_password: Annotated[str, Body()] = None,
-    public_key: Annotated[str, Body()] = None,
+    Base: CredentialBase
 ):
     """Modifies an existing credential.
 
@@ -221,6 +198,6 @@ def modify_credential(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.modify_credential(name=name,credential_id=credential_id,comment=comment,allow_insecure=allow_insecure,certificate=certificate,key_phrase=key_phrase,private_key=private_key,login=login,password=password,auth_algorithm=auth_algorithm,community=community,privacy_algorithm=privacy_algorithm,privacy_password=privacy_password,public_key=public_key)
+            return gmp.modify_credential(credential_id=credential_id,name=Base.name,credential_type=Base.credential_type,comment=Base.comment,allow_insecure=Base.allow_insecure,certificate=Base.certificate,key_phrase=Base.key_phrase,private_key=Base.private_key,login=Base.login,password=Base.password,auth_algorithm=Base.auth_algorithm,community=Base.community,privacy_algorithm=Base.privacy_algorithm,privacy_password=Base.privacy_password,public_key=Base.public_key)
         except Exception as err:
             return ErrorResponse(err)
