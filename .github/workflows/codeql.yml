@@ -14,13 +14,13 @@ name: "CodeQL"
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  DOCKERHUB_TOKEN: ${{ secrets.GITHUB_TOKEN.secrets.DOCKERHUB_TOKEN }}
-  DOCKERHUB_USERNAME: ${{ secrets.GITHUB_TOKEN.secrets.DOCKERHUB_USERNAME }}
+  #DOCKERHUB_TOKEN: ${{ secrets.GITHUB_TOKEN.secrets.DOCKERHUB_TOKEN }}
+  #DOCKERHUB_USERNAME: ${{ secrets.GITHUB_TOKEN.secrets.DOCKERHUB_USERNAME }}
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
+  pull_request_target:
     paths:
       - app/**
       - .github/workflows/**
@@ -86,7 +86,17 @@ jobs:
       with:
         category: "/language:${{matrix.language}}"
 
+  authorize:
+    environment:
+      ${{ github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository &&
+      'external' || 'internal' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
+  
   scout:
+    needs: authorize
     name: Docker Scout
     runs-on: ubuntu-latest
 
@@ -104,10 +114,10 @@ jobs:
         name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          #username: ${{ secrets.DOCKERHUB_USERNAME }}
-          #password: ${{ secrets.DOCKERHUB_TOKEN }}
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          #username: ${{ env.DOCKERHUB_USERNAME }}
+          #password: ${{ env.DOCKERHUB_TOKEN }}
 
       -
         name: Setup Docker Buildx
