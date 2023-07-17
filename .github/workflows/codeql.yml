@@ -14,8 +14,6 @@ name: "CodeQL"
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  #DOCKERHUB_TOKEN: ${{ secrets.GITHUB_TOKEN.secrets.DOCKERHUB_TOKEN }}
-  #DOCKERHUB_USERNAME: ${{ secrets.GITHUB_TOKEN.secrets.DOCKERHUB_USERNAME }}
 
 on:
   push:
@@ -106,8 +104,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          #username: ${{ env.DOCKERHUB_USERNAME }}
-          #password: ${{ env.DOCKERHUB_TOKEN }}
 
       -
         name: Setup Docker Buildx
