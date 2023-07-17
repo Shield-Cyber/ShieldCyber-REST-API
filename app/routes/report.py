@@ -115,11 +115,17 @@ async def get_report_formats(
     params: Optional[bool] = None,
     details: Optional[bool] = None,
 ):
-    """Request a single report format
+    """Request a list of report formats
 
         Arguments:
 
-            report_format_id: UUID of an existing report format or ReportFormatType (enum)
+            filter_string: Filter term to use for the query
+            filter_id: UUID of an existing filter to use for the query
+            trash: Whether to get the trashcan report formats instead
+            alerts: Whether to include alerts that use the report format
+            params: Whether to include report format parameters
+            details: Include report format file, signature and parameters
+
         Returns:
             The response.
         """

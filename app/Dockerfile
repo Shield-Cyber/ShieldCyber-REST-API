@@ -1,20 +1,24 @@
 FROM python:3.11.4
 
-RUN curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
-RUN chmod +x mkcert-v*-linux-amd64
-RUN cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
-RUN mkcert -install
-
 WORKDIR /opt
 
 COPY requirements.txt /opt
 RUN pip3 install -r requirements.txt
 
 RUN mkdir certs
-RUN mkcert -cert-file ./certs/cert.pem -key-file ./certs/key.pem localhost 127.0.0.1 0.0.0.0
+RUN apt update && \
+    apt install openssl && \
+    openssl req -newkey rsa:4096 \
+    -x509 \
+    -sha256 \
+    -days 3650 \
+    -nodes \
+    -out ./certs/cert.crt \
+    -keyout ./certs/key.key \
+    -subj "/C=US/ST=IN/L=IN/O=Shield/OU=Shield/CN=www.hopliteconsulting.com"
 
-ENV VERSION=2.7.6
+ENV VERSION=2.7.8
 
 COPY . ./app
 
-CMD uvicorn app.main:app --host 0.0.0.0 --ssl-keyfile=./certs/key.pem --ssl-certfile=./certs/cert.pem --log-config ./app/config/log.yaml
+CMD uvicorn app.main:app --host 0.0.0.0 --ssl-keyfile=./certs/key.key --ssl-certfile=./certs/cert.crt --log-config ./app/config/log.yaml
