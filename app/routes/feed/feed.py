@@ -40,7 +40,7 @@ async def get_feeds(
 @ROUTER.get("/get/feed")
 async def get_feed(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    feed_type: Optional[FeedType]
+    feed_type: FeedType
     ):
     """Request a single feed
 

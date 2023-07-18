@@ -10,6 +10,8 @@ from gvm.protocols.gmpv208.entities.targets import AliveTest
 from gvm.errors import RequiredArgument
 from app import LOGGING_PREFIX
 
+from . import models as Models
+
 ENDPOINT = "target"
 
 LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
@@ -22,24 +24,10 @@ ROUTER = APIRouter(
 
 ### ROUTES ###
 
-@ROUTER.post("/create/target")
+@ROUTER.post("/create")
 async def create_target(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    name: str,
-    asset_hosts_filter: Optional[str] = None,
-    hosts: Optional[List[str]] = None,
-    comment: Optional[str] = None,
-    exclude_hosts: Optional[List[str]] = None,
-    ssh_credential_id: Optional[str] = None,
-    ssh_credential_port: Optional[int] = None,
-    smb_credential_id: Optional[str] = None,
-    esxi_credential_id: Optional[str] = None,
-    snmp_credential_id: Optional[str] = None,
-    alive_test: Optional[AliveTest] = None,
-    reverse_lookup_only: Optional[bool] = None,
-    reverse_lookup_unify: Optional[bool] = None,
-    port_range: Optional[str] = None,
-    port_list_id: Optional[str] = None,
+    Base: Models.CreateTarget
     ):
     """Create a new target
 
@@ -67,11 +55,11 @@ async def create_target(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.create_target(name=name,asset_hosts_filter=asset_hosts_filter,hosts=hosts,comment=comment,exclude_hosts=exclude_hosts,ssh_credential_id=ssh_credential_id,ssh_credential_port=ssh_credential_port,smb_credential_id=smb_credential_id,esxi_credential_id=esxi_credential_id,snmp_credential_id=snmp_credential_id,alive_test=alive_test,reverse_lookup_only=reverse_lookup_only,reverse_lookup_unify=reverse_lookup_unify,port_range=port_range,port_list_id=port_list_id)
+            return gmp.create_target(name=Base.name,asset_hosts_filter=Base.asset_hosts_filter,hosts=Base.hosts,comment=Base.comment,exclude_hosts=Base.exclude_hosts,ssh_credential_id=Base.ssh_credential_id,ssh_credential_port=Base.ssh_credential_port,smb_credential_id=Base.smb_credential_id,esxi_credential_id=Base.esxi_credential_id,snmp_credential_id=Base.snmp_credential_id,alive_test=Base.alive_test,reverse_lookup_only=Base.reverse_lookup_only,reverse_lookup_unify=Base.reverse_lookup_unify,port_range=Base.port_range,port_list_id=Base.port_list_id)
         except Exception as err:
             return ErrorResponse(err)
 
-@ROUTER.get("/get/target")
+@ROUTER.get("/get/{target_id}")
 async def get_target(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     target_id: str,
@@ -121,7 +109,7 @@ async def get_targets(
         except Exception as err:
             return ErrorResponse(err)
     
-@ROUTER.post("/clone/target")
+@ROUTER.post("/clone/{target_id}")
 async def clone_target(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     target_id: str
@@ -142,7 +130,7 @@ async def clone_target(
         except Exception as err:
             return ErrorResponse(err)
     
-@ROUTER.delete("/delete/target")
+@ROUTER.delete("/delete/{target_id}")
 async def delete_target(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     target_id: str,
@@ -162,24 +150,10 @@ async def delete_target(
         except Exception as err:
             return ErrorResponse(err)
     
-@ROUTER.patch("/modify/target")
-async def delete_target(
+@ROUTER.patch("/modify/{target_id}")
+async def modify_target(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    target_id: str,
-    name: Optional[str] = None,
-    comment: Optional[str] = None,
-    hosts: Optional[List[str]] = None,
-    exclude_hosts: Optional[List[str]] = None,
-    ssh_credential_id: Optional[str] = None,
-    ssh_credential_port: Optional[bool] = None,
-    smb_credential_id: Optional[str] = None,
-    esxi_credential_id: Optional[str] = None,
-    snmp_credential_id: Optional[str] = None,
-    alive_test: Optional[AliveTest] = None,
-    allow_simultaneous_ips: Optional[bool] = None,
-    reverse_lookup_only: Optional[bool] = None,
-    reverse_lookup_unify: Optional[bool] = None,
-    port_list_id: Optional[str] = None,
+    Base: Models.ModifyTarget
 ):
     """Modifies an existing target.
 
@@ -207,6 +181,6 @@ async def delete_target(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.modify_target(target_id=target_id,name=name,comment=comment,hosts=hosts,exclude_hosts=exclude_hosts,ssh_credential_id=ssh_credential_id,ssh_credential_port=ssh_credential_port,smb_credential_id=smb_credential_id,esxi_credential_id=esxi_credential_id,snmp_credential_id=snmp_credential_id,alive_test=alive_test,allow_simultaneous_ips=allow_simultaneous_ips,reverse_lookup_only=reverse_lookup_only,reverse_lookup_unify=reverse_lookup_unify,port_list_id=port_list_id)
+            return gmp.modify_target(target_id=Base.target_id,name=Base.name,comment=Base.comment,hosts=Base.hosts,exclude_hosts=Base.exclude_hosts,ssh_credential_id=Base.ssh_credential_id,ssh_credential_port=Base.ssh_credential_port,smb_credential_id=Base.smb_credential_id,esxi_credential_id=Base.esxi_credential_id,snmp_credential_id=Base.snmp_credential_id,alive_test=Base.alive_test,allow_simultaneous_ips=Base.allow_simultaneous_ips,reverse_lookup_only=Base.reverse_lookup_only,reverse_lookup_unify=Base.reverse_lookup_unify,port_list_id=Base.port_list_id)
         except Exception as err:
             return ErrorResponse(err)

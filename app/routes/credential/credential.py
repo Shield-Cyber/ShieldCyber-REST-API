@@ -74,9 +74,9 @@ def create_credential(
 def get_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     credential_id: str,
-    scanners: Optional[bool] = None,
-    targets: Optional[bool] = None,
-    credential_format: Optional[CredentialFormat] = None,
+    scanners: bool = None,
+    targets: bool = None,
+    credential_format: CredentialFormat = None,
 ):
     """Request a single credential
 
@@ -100,11 +100,11 @@ def get_credential(
 @ROUTER.get("/get/credentials")
 def get_credentials(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    filter_string: Optional[str] = None,
-    filter_id: Optional[str] = None,
-    scanners: Optional[bool] = None,
-    trash: Optional[bool] = None,
-    targets: Optional[bool] = None,
+    filter_string: str = None,
+    filter_id: str = None,
+    scanners: bool = None,
+    trash: bool = None,
+    targets: bool = None,
 ):
     """Request a list of credentials
 
@@ -151,7 +151,7 @@ def clone_credential(
 def delete_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     credential_id: str,
-    ultimate: Optional[bool] = False
+    ultimate: bool = False
 ):
     """Deletes an existing credential
 

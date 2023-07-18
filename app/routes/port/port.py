@@ -26,11 +26,11 @@ ROUTER = APIRouter(
 @ROUTER.get("/get/lists")
 async def get_port_lists(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    filter_string: str | None = None,
-    filter_id: str | None = None,
-    details: bool | None = None,
-    targets: bool | None = None,
-    trash: bool | None = None,
+    filter_string: str = None,
+    filter_id: str = None,
+    details: bool = None,
+    targets: bool = None,
+    trash: bool = None,
     ):
     """Request a list of port lists
 
