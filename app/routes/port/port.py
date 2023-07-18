@@ -9,7 +9,7 @@ from typing import Annotated, Optional
 from app import LOGGING_PREFIX
 from gvm.protocols.gmpv208.entities.port_lists import PortRangeType
 
-from .models import PortListBase, PortRangeBase
+from . import models as Models
 
 ENDPOINT = "port"
 
@@ -97,7 +97,7 @@ async def clone_port_list(
 @ROUTER.post("/create/list")
 async def create_port_list(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    Base: PortListBase
+    Base: Models.CreatePortList
     ):
     """Create a new port list
 
@@ -120,7 +120,7 @@ async def create_port_list(
 @ROUTER.post("/create/range")
 async def create_port_range(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    Base: PortRangeBase
+    Base: Models.CreatePortRange
     ):
     """Create new port range
 
@@ -184,8 +184,7 @@ async def delete_port_range(
 async def modify_port_list(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     port_list_id: str,
-    comment: Annotated[Optional[str], Body()] = None,
-    name: Annotated[Optional[str], Body()] = None,
+    Base: Models.ModifyPortList
     ):
     """Modifies an existing port list.
 

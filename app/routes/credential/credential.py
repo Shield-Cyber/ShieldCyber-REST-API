@@ -10,7 +10,7 @@ from gvm.protocols.gmpv208.entities.credentials import CredentialType, SnmpAuthA
 from typing import Annotated, Optional
 import logging
 
-from .models import CredentialBase
+from . import models as Models
 
 ENDPOINT = "credential"
 
@@ -27,7 +27,7 @@ ROUTER = APIRouter(
 @ROUTER.post("/create")
 def create_credential(
         current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-        Base: CredentialBase
+        Base: Models.CreateCredential
 ):
     """Create a new credential
 
@@ -171,7 +171,7 @@ def delete_credential(
 def modify_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     credential_id: str,
-    Base: CredentialBase
+    Base: Models.ModifyCredential
 ):
     """Modifies an existing credential.
 
