@@ -1,5 +1,6 @@
 from .authentication.authentication import ROUTER as AUTHENTICATION
 from .credential.credential import ROUTER as CREDENTIAL
+from .schedule.schedule import ROUTER as SCHEDULE
 from .version.version import ROUTER as VERSION
 from .scanner.scanner import ROUTER as SCANNER
 from .report.report import ROUTER as REPORT
