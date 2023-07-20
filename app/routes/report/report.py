@@ -54,7 +54,8 @@ async def get_report(
         try:
             return gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/reports")
 async def get_reports(
@@ -85,7 +86,8 @@ async def get_reports(
         try:
             return gmp.get_reports(filter_string=filter_string,filter_id=filter_id,note_details=note_details,override_details=override_details,ignore_pagination=ignore_pagination,details=details)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/format/{report_format_id}")
 async def get_report_format(
@@ -105,7 +107,8 @@ async def get_report_format(
         try:
             return gmp.get_report_format(report_format_id=report_format_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/formats")
 async def get_report_formats(
@@ -136,7 +139,8 @@ async def get_report_formats(
         try:
             return gmp.get_report_formats(filter_string=filter_string,filter_id=filter_id,trash=trash,alerts=alerts,params=params,details=details)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/clone/format/{report_format_id}")
 async def clone_report_format(
@@ -157,7 +161,8 @@ async def clone_report_format(
         try:
             return gmp.clone_report_format(report_format_id=report_format_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.delete("/delete/report/{report_id}")
 async def delete_report(
@@ -175,7 +180,8 @@ async def delete_report(
         try:
             return gmp.delete_report(report_id=report_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.delete("/delete/format/{report_format_id}")
 async def delete_report_format(
@@ -195,7 +201,8 @@ async def delete_report_format(
         try:
             return gmp.delete_report_format(report_format_id=report_format_id,ultimate=ultimate)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/import/report")
 async def import_report(
@@ -218,7 +225,8 @@ async def import_report(
         try:
             return gmp.import_report(report=Base.report,task_id=Base.task_id,in_assets=Base.in_assets)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/import/format")
 async def import_report_format(
@@ -239,7 +247,8 @@ async def import_report_format(
         try:
             return gmp.import_report_format(report_format=Base.report_format)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.patch("/modify/format/{report_format_id}")
 async def modify_report_format(
@@ -266,7 +275,8 @@ async def modify_report_format(
         try:
             return gmp.modify_report_format(report_format_id=report_format_id,active=Base.active,name=Base.name,summary=Base.summary,param_name=Base.param_name,param_value=Base.param_value)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/verify/format/{report_format_id}")
 async def verify_report_format(
@@ -293,4 +303,5 @@ async def verify_report_format(
         try:
             return gmp.verify_report_format(report_format_id=report_format_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")

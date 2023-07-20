@@ -20,7 +20,7 @@ ROUTER = APIRouter(
 
 ### ROUTES ###
 
-@ROUTER.get("/get/scan/configs")
+@ROUTER.get("/get/configs")
 async def get_scan_configs(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     filter_string: Optional[str] = None,
@@ -51,5 +51,6 @@ async def get_scan_configs(
         try:
             return gmp.get_scan_configs(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details,families=families,preferences=preferences,tasks=tasks)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 

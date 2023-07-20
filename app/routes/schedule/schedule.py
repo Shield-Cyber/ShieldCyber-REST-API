@@ -75,7 +75,8 @@ async def create_schedule(
         try:
             return gmp.create_schedule(name=Base.name,icalendar=Base.icalendar,timezone=Base.timezone,comment=Base.comment)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
         
 @ROUTER.patch("/modify/{schedule_id}")
 async def modify_schedule(
@@ -104,7 +105,8 @@ async def modify_schedule(
         try:
             return gmp.modify_schedule(schedule_id=schedule_id,name=Base.name,icalendar=Base.icalendar,timezone=Base.timezone,comment=Base.comment)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
         
 @ROUTER.post("/clone/{schedule_id}")
 async def clone_schedule(
@@ -125,7 +127,8 @@ async def clone_schedule(
         try:
             return gmp.clone_schedule(schedule_id=schedule_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
         
 @ROUTER.delete("/delete/{schedule_id}")
 async def delete_schedule(
@@ -144,7 +147,8 @@ async def delete_schedule(
         try:
             return gmp.delete_schedule(schedule_id=schedule_id,ultimate=ultimate)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/{schedule_id}")
 async def get_schedule(
@@ -167,7 +171,8 @@ async def get_schedule(
         try:
             return gmp.get_schedule(schedule_id=schedule_id,tasks=tasks)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
         
 @ROUTER.get("/get/schedules")
 async def get_schedules(
@@ -194,4 +199,5 @@ async def get_schedules(
         try:
             return gmp.get_schedules(filter_string=filter_string,filter_id=filter_id,trash=trash,tasks=tasks)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")

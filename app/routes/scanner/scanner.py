@@ -47,7 +47,8 @@ async def get_scanners(
         try:
             return gmp.get_scanners(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/{scanner_id}")
 async def get_scanner(
@@ -68,7 +69,8 @@ async def get_scanner(
         try:
             return gmp.get_scanner(scanner_id=scanner_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
         
 @ROUTER.post("/create")
 async def create_scanner(
@@ -95,7 +97,8 @@ async def create_scanner(
         try:
             return gmp.create_scanner(name=Base.name,host=Base.host,port=Base.port,scanner_type=Base.scanner_type,credential_id=Base.credential_id,ca_pub=Base.ca_pub,comment=Base.comment)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
         
 @ROUTER.patch("/modify/{scanner_id}")
 async def modify_scanner(
@@ -124,7 +127,8 @@ async def modify_scanner(
         try:
             return gmp.modify_scanner(scanner_id=scanner_id,scanner_type=Base.scanner_type,host=Base.host,port=Base.port,comment=Base.comment,name=Base.name,ca_pub=Base.ca_pub,credential_id=Base.credential_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
         
 @ROUTER.post("/clone/{scanner_id}")
 async def clone_scanner(
@@ -145,7 +149,8 @@ async def clone_scanner(
         try:
             return gmp.clone_scanner(scanner_id=scanner_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
         
 @ROUTER.delete("/delete/{scanner_id}")
 async def delete_scanner(
@@ -165,7 +170,8 @@ async def delete_scanner(
         try:
             return gmp.delete_scanner(scanner_id=scanner_id,ultimate=ultimate)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
         
 @ROUTER.get("/verify/{scanner_id}")
 async def verify_scanner(
@@ -188,4 +194,5 @@ async def verify_scanner(
         try:
             return gmp.verify_scanner(scanner_id=scanner_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")

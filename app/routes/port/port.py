@@ -50,7 +50,8 @@ async def get_port_lists(
         try:
             return gmp.get_port_lists(filter_string=filter_string,filter_id=filter_id,trash=trash,details=details,targets=targets)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/list/{port_list_id}")
 async def get_port_list(
@@ -71,7 +72,8 @@ async def get_port_list(
         try:
             return gmp.get_port_list(port_list_id=port_list_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/clone/list/{port_list_id}")
 async def clone_port_list(
@@ -92,7 +94,8 @@ async def clone_port_list(
         try:
             return gmp.clone_port_list(port_list_id=port_list_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/create/list")
 async def create_port_list(
@@ -115,7 +118,8 @@ async def create_port_list(
         try:
             return gmp.create_port_list(name=Base.name, port_range=Base.port_range, comment=Base.comment)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/create/range")
 async def create_port_range(
@@ -140,7 +144,8 @@ async def create_port_range(
         try:
             return gmp.create_port_range(port_list_id=Base.port_list_id,start=Base.start,end=Base.end,port_range_type=Base.port_range_type,comment=Base.comment)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.delete("/delete/list/{port_list_id}")
 async def delete_port_list(
@@ -160,7 +165,8 @@ async def delete_port_list(
         try:
             return gmp.delete_port_list(port_list_id=port_list_id, ultimate=ultimate)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.delete("/delete/range/{port_range_id}")
 async def delete_port_range(
@@ -178,7 +184,8 @@ async def delete_port_range(
         try:
             return gmp.delete_port_range(port_range_id=port_range_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.patch("/modify/list/{port_list_id}")
 async def modify_port_list(
@@ -202,4 +209,5 @@ async def modify_port_list(
         try:
             return gmp.modify_port_list(port_list_id=port_list_id, comment=comment, name=name)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")

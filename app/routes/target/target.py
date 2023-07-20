@@ -57,7 +57,8 @@ async def create_target(
         try:
             return gmp.create_target(name=Base.name,asset_hosts_filter=Base.asset_hosts_filter,hosts=Base.hosts,comment=Base.comment,exclude_hosts=Base.exclude_hosts,ssh_credential_id=Base.ssh_credential_id,ssh_credential_port=Base.ssh_credential_port,smb_credential_id=Base.smb_credential_id,esxi_credential_id=Base.esxi_credential_id,snmp_credential_id=Base.snmp_credential_id,alive_test=Base.alive_test,reverse_lookup_only=Base.reverse_lookup_only,reverse_lookup_unify=Base.reverse_lookup_unify,port_range=Base.port_range,port_list_id=Base.port_list_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/{target_id}")
 async def get_target(
@@ -80,7 +81,8 @@ async def get_target(
         try:
             return gmp.get_target(target_id=target_id, tasks=tasks)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
     
 @ROUTER.get("/get/targets")
 async def get_targets(
@@ -107,7 +109,8 @@ async def get_targets(
         try:
             return gmp.get_targets(filter_string=filter_string,filter_id=filter_id,trash=trash,tasks=tasks)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
     
 @ROUTER.post("/clone/{target_id}")
 async def clone_target(
@@ -128,7 +131,8 @@ async def clone_target(
         try:
             return gmp.clone_target(target_id=target_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
     
 @ROUTER.delete("/delete/{target_id}")
 async def delete_target(
@@ -148,7 +152,8 @@ async def delete_target(
         try:
             return gmp.delete_target(target_id=target_id, ultimate=ultimate)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
     
 @ROUTER.patch("/modify/{target_id}")
 async def modify_target(
@@ -183,4 +188,5 @@ async def modify_target(
         try:
             return gmp.modify_target(target_id=Base.target_id,name=Base.name,comment=Base.comment,hosts=Base.hosts,exclude_hosts=Base.exclude_hosts,ssh_credential_id=Base.ssh_credential_id,ssh_credential_port=Base.ssh_credential_port,smb_credential_id=Base.smb_credential_id,esxi_credential_id=Base.esxi_credential_id,snmp_credential_id=Base.snmp_credential_id,alive_test=Base.alive_test,allow_simultaneous_ips=Base.allow_simultaneous_ips,reverse_lookup_only=Base.reverse_lookup_only,reverse_lookup_unify=Base.reverse_lookup_unify,port_list_id=Base.port_list_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")

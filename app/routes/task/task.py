@@ -50,7 +50,8 @@ async def get_tasks(
         try:
             return gmp.get_tasks(filter_string=filter_string, filter_id=filter_id, trash=trash, details=details, schedules_only=schedules_only)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/{task_id}")
 async def get_task(
@@ -71,7 +72,8 @@ async def get_task(
         try:
             return gmp.get_task(task_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.delete("/delete/{task_id}")
 async def delete_task(
@@ -91,7 +93,8 @@ async def delete_task(
         try:
             return gmp.delete_task(task_id=task_id, ultimate=ultimate)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/create")
 async def create_task(
@@ -123,7 +126,8 @@ async def create_task(
         try:
             return gmp.create_task(name=Base.name,config_id=Base.config_id,target_id=Base.target_id,scanner_id=Base.scanner_id,alterable=Base.alterable,hosts_ordering=Base.hosts_ordering,schedule_id=Base.schedule_id,alert_ids=Base.alert_ids,comment=Base.comment,schedule_periods=Base.schedule_periods,observers=Base.observers,preferences=Base.preferences)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.patch("/modify/{task_id}")
 async def modify_task(
@@ -155,7 +159,8 @@ async def modify_task(
         try:
             return gmp.modify_task(task_id=Base.task_id,name=Base.name,config_id=Base.config_id,target_id=Base.target_id,scanner_id=Base.scanner_id,alterable=Base.alterable,hosts_ordering=Base.hosts_ordering,schedule_id=Base.schedule_id,schedule_periods=Base.schedule_periods,comment=Base.comment,alert_ids=Base.alert_ids,observers=Base.observers,preferences=Base.preferences)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/stop/{task_id}")
 async def stop_task(
@@ -176,7 +181,8 @@ async def stop_task(
         try:
             return gmp.stop_task(task_id=task_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/start/{task_id}")
 async def start_task(
@@ -197,7 +203,8 @@ async def start_task(
         try:
             return gmp.start_task(task_id=task_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/clone/{task_id}")
 async def clone_task(
@@ -218,7 +225,8 @@ async def clone_task(
         try:
             return gmp.clone_task(task_id=task_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.patch("/move/{task_id}")
 async def move_task(
@@ -240,7 +248,8 @@ async def move_task(
         try:
             return gmp.move_task(task_id=Base.task_id, slave_id=Base.slave_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/resume/{task_id}")
 async def resume_task(
@@ -261,4 +270,5 @@ async def resume_task(
         try:
             return gmp.resume_task(task_id=task_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")

@@ -35,7 +35,8 @@ async def get_feeds(
         try:
             return gmp.get_feeds()
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/{feed_type}")
 async def get_feed(
@@ -56,4 +57,5 @@ async def get_feed(
         try:
             return gmp.get_feed(feed_type=feed_type)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")

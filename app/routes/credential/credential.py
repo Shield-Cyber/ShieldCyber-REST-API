@@ -68,7 +68,8 @@ def create_credential(
         try:
             return gmp.create_credential(name=Base.name,credential_type=Base.credential_type,comment=Base.comment,allow_insecure=Base.allow_insecure,certificate=Base.certificate,key_phrase=Base.key_phrase,private_key=Base.private_key,login=Base.login,password=Base.password,auth_algorithm=Base.auth_algorithm,community=Base.community,privacy_algorithm=Base.privacy_algorithm,privacy_password=Base.privacy_password,public_key=Base.public_key)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/{credential_id}")
 def get_credential(
@@ -95,7 +96,8 @@ def get_credential(
         try:
             return gmp.get_credential(credential_id=credential_id,scanners=scanners,targets=targets,credential_format=credential_format)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/credentials")
 def get_credentials(
@@ -124,7 +126,8 @@ def get_credentials(
         try:
             return gmp.get_credentials(filter_string=filter_string,filter_id=filter_id,scanners=scanners,trash=trash,targets=targets)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/clone/{credential_id}")
 def clone_credential(
@@ -145,7 +148,8 @@ def clone_credential(
         try:
             return gmp.clone_credential(credential_id=credential_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
     
 @ROUTER.delete("/delete/{credential_id}")
 def delete_credential(
@@ -165,7 +169,8 @@ def delete_credential(
         try:
             return gmp.delete_credential(credential_id=credential_id, ultimate=ultimate)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
     
 @ROUTER.patch("/modify/{credential_id}")
 def modify_credential(
@@ -200,4 +205,5 @@ def modify_credential(
         try:
             return gmp.modify_credential(credential_id=credential_id,name=Base.name,credential_type=Base.credential_type,comment=Base.comment,allow_insecure=Base.allow_insecure,certificate=Base.certificate,key_phrase=Base.key_phrase,private_key=Base.private_key,login=Base.login,password=Base.password,auth_algorithm=Base.auth_algorithm,community=Base.community,privacy_algorithm=Base.privacy_algorithm,privacy_password=Base.privacy_password,public_key=Base.public_key)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
