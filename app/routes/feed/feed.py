@@ -37,7 +37,7 @@ async def get_feeds(
         except Exception as err:
             return ErrorResponse(err)
 
-@ROUTER.get("/get/feed")
+@ROUTER.get("/get/{feed_type}")
 async def get_feed(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     feed_type: FeedType
@@ -57,4 +57,3 @@ async def get_feed(
             return gmp.get_feed(feed_type=feed_type)
         except Exception as err:
             return ErrorResponse(err)
-    
