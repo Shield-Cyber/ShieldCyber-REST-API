@@ -170,7 +170,7 @@ services:
       - gvmd
       - ospd-openvas
 
-# Rest API
+# Rest API Dev Version
   rest-api:
     build: ./app
     restart: on-failure
@@ -188,6 +188,7 @@ services:
       - gvmd_socket_vol:/run/gvmd
       - api_logs_vol:/logs
 
+  # Latest Release Version
   rest-api-latest-release:
     image: ghcr.io/shield-cyber/openvas-rest-api:latest
     restart: on-failure
