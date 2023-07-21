@@ -177,6 +177,7 @@ services:
     ports:
       - 8000:8000
     environment:
+      - PROD=False # Used for Dev Only
       - USERNAME=admin # DEFAULT USERNAME 'admin'
       - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
     depends_on:

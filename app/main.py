@@ -6,7 +6,7 @@ from gvm.protocols.gmp import Gmp
 from app.utils.xml import root as xml_root
 import time
 from app import routes as RT
-from app import DESCRIPTION, LOGGING_PREFIX, VERSION
+from app import DESCRIPTION, LOGGING_PREFIX, VERSION, PROD
 from app.database import crud as DB
 
 # Logging
@@ -16,24 +16,27 @@ LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.main")
 async def lifespan(app: FastAPI):
     LOGGER.info(f"System Starting...")
     counter = 0
-    while True:
-        if counter >= 60:
-            LOGGER.critical("Connection to gvmd socket took too long. Forcing system exit.")
-            raise SystemExit(1)
-        try:
-            with Gmp(connection=UnixSocketConnection()) as gmp:
-                version = xml_root(gmp.get_version())
-                if version.status != 200:
-                    LOGGER.critical(f"Version check recieved non-200 response. Response: {version.data}")
-                    raise SystemExit(2)
-                LOGGER.info(f"{version.status}, {version.status_text}. Startup complete and took {counter} second(s).")
-                break
-        except SystemExit:
-            raise SystemExit(2)
-        except:
-            LOGGER.warning("Wating 1 second for gvmd socket.")
-            time.sleep(1)
-            counter += 1
+    if PROD:
+        while True:
+            if counter >= 60:
+                LOGGER.critical("Connection to gvmd socket took too long. Forcing system exit.")
+                raise SystemExit(1)
+            try:
+                with Gmp(connection=UnixSocketConnection()) as gmp:
+                    version = xml_root(gmp.get_version())
+                    if version.status != 200:
+                        LOGGER.critical(f"Version check recieved non-200 response. Response: {version.data}")
+                        raise SystemExit(2)
+                    LOGGER.info(f"{version.status}, {version.status_text}. Startup complete and took {counter} second(s).")
+                    break
+            except SystemExit:
+                raise SystemExit(2)
+            except:
+                LOGGER.warning("Wating 1 second for gvmd socket.")
+                time.sleep(1)
+                counter += 1
+    else:
+        LOGGER.warning("Prod Mode Disabled: Some functions may not work correctly.")
     yield
     LOGGER.info("System shutting down...")
 
