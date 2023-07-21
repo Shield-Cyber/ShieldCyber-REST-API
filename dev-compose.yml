@@ -1,6 +1,7 @@
 services:
   vulnerability-tests:
     image: greenbone/vulnerability-tests:latest
+    pull_policy: always
     environment:
       STORAGE_PATH: /var/lib/openvas/22.04/vt-data/nasl
     volumes:
@@ -8,21 +9,25 @@ services:
 
   notus-data:
     image: greenbone/notus-data:latest
+    pull_policy: always
     volumes:
       - notus_data_vol:/mnt
 
   scap-data:
     image: greenbone/scap-data:latest
+    pull_policy: always
     volumes:
       - scap_data_vol:/mnt
 
   cert-bund-data:
     image: greenbone/cert-bund-data:latest
+    pull_policy: always
     volumes:
       - cert_data_vol:/mnt
 
   dfn-cert-data:
     image: greenbone/dfn-cert-data:latest
+    pull_policy: always
     volumes:
       - cert_data_vol:/mnt
     depends_on:
@@ -30,11 +35,13 @@ services:
 
   data-objects:
     image: greenbone/data-objects:latest
+    pull_policy: always
     volumes:
       - data_objects_vol:/mnt
 
   report-formats:
     image: greenbone/report-formats:latest
+    pull_policy: always
     volumes:
       - data_objects_vol:/mnt
     depends_on:
@@ -42,6 +49,7 @@ services:
 
   gpg-data:
     image: greenbone/gpg-data:latest
+    pull_policy: always
     volumes:
       - gpg_data_vol:/mnt
 
@@ -163,6 +171,7 @@ services:
 
   gvm-tools:
     image: greenbone/gvm-tools:latest
+    pull_policy: always
     volumes:
       - gvmd_socket_vol:/run/gvmd
       - ospd_openvas_socket_vol:/run/ospd
