@@ -12,6 +12,8 @@ on:
       - example.env
       - .github/workflows/release.yml
   
+# Comment literaly to make it run automatically and correctly I hope...
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
