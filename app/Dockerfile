@@ -7,7 +7,7 @@ RUN pip3 install -r requirements.txt
 
 RUN mkdir certs
 RUN apt update
-RUN apt install openssl
+RUN apt install openssl -y
 RUN openssl req -newkey rsa:4096 \
     -x509 \
     -sha256 \
