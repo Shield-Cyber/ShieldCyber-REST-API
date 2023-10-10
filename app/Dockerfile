@@ -6,9 +6,9 @@ COPY requirements.txt /opt
 RUN pip3 install -r requirements.txt
 
 RUN mkdir certs
-RUN apt update && \
-    apt install openssl && \
-    openssl req -newkey rsa:4096 \
+RUN apt update
+RUN apt install openssl
+RUN openssl req -newkey rsa:4096 \
     -x509 \
     -sha256 \
     -days 3650 \
