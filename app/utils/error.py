@@ -1,5 +1,9 @@
 from typing import Any
 from .xml import XMLResponse
+from app import LOGGING_PREFIX
+import logging
+
+LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.error")
 
 class ErrorResponse(XMLResponse):
 

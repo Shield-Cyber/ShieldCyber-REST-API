@@ -10,6 +10,8 @@ from gvm.protocols.gmpv208.entities.credentials import CredentialType, SnmpAuthA
 from typing import Annotated, Optional
 import logging
 
+from . import models as Models
+
 ENDPOINT = "credential"
 
 LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
@@ -22,23 +24,10 @@ ROUTER = APIRouter(
 
 ### ROUTES ###
 
-@ROUTER.post("/create/credential")
+@ROUTER.post("/create")
 def create_credential(
         current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-        name: str,
-        credential_type: CredentialType,
-        comment: Optional[str] = None,
-        allow_insecure: Optional[bool] = False,
-        certificate: Annotated[str, Body()] = None,
-        key_phrase: Annotated[str, Body()] = None,
-        private_key: Annotated[str, Body()] = None,
-        login: Annotated[str, Body()] = None,
-        password: Annotated[str, Body()] = None,
-        auth_algorithm: Optional[SnmpAuthAlgorithm] = None,
-        community: Annotated[str, Body()] = None,
-        privacy_algorithm: Optional[SnmpPrivacyAlgorithm] = None,
-        privacy_password: Annotated[str, Body()] = None,
-        public_key: Annotated[str, Body()] = None,
+        Base: Models.CreateCredential
 ):
     """Create a new credential
 
@@ -77,17 +66,18 @@ def create_credential(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.create_credential(name=name,credential_type=credential_type,comment=comment,allow_insecure=allow_insecure,certificate=certificate,key_phrase=key_phrase,private_key=private_key,login=login,password=password,auth_algorithm=auth_algorithm,community=community,privacy_algorithm=privacy_algorithm,privacy_password=privacy_password,public_key=public_key)
+            return gmp.create_credential(name=Base.name,credential_type=Base.credential_type,comment=Base.comment,allow_insecure=Base.allow_insecure,certificate=Base.certificate,key_phrase=Base.key_phrase,private_key=Base.private_key,login=Base.login,password=Base.password,auth_algorithm=Base.auth_algorithm,community=Base.community,privacy_algorithm=Base.privacy_algorithm,privacy_password=Base.privacy_password,public_key=Base.public_key)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.get("/get/credential")
+@ROUTER.get("/get/{credential_id}")
 def get_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     credential_id: str,
-    scanners: Optional[bool] = None,
-    targets: Optional[bool] = None,
-    credential_format: Optional[CredentialFormat] = None,
+    scanners: bool = None,
+    targets: bool = None,
+    credential_format: CredentialFormat = None,
 ):
     """Request a single credential
 
@@ -106,16 +96,17 @@ def get_credential(
         try:
             return gmp.get_credential(credential_id=credential_id,scanners=scanners,targets=targets,credential_format=credential_format)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/credentials")
 def get_credentials(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    filter_string: Optional[str] = None,
-    filter_id: Optional[str] = None,
-    scanners: Optional[bool] = None,
-    trash: Optional[bool] = None,
-    targets: Optional[bool] = None,
+    filter_string: str = None,
+    filter_id: str = None,
+    scanners: bool = None,
+    trash: bool = None,
+    targets: bool = None,
 ):
     """Request a list of credentials
 
@@ -135,9 +126,10 @@ def get_credentials(
         try:
             return gmp.get_credentials(filter_string=filter_string,filter_id=filter_id,scanners=scanners,trash=trash,targets=targets)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.post("/clone/credential")
+@ROUTER.post("/clone/{credential_id}")
 def clone_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     credential_id: str
@@ -156,13 +148,14 @@ def clone_credential(
         try:
             return gmp.clone_credential(credential_id=credential_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
     
-@ROUTER.delete("/delete/credential")
+@ROUTER.delete("/delete/{credential_id}")
 def delete_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     credential_id: str,
-    ultimate: Optional[bool] = False
+    ultimate: bool = False
 ):
     """Deletes an existing credential
 
@@ -176,25 +169,14 @@ def delete_credential(
         try:
             return gmp.delete_credential(credential_id=credential_id, ultimate=ultimate)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
     
-@ROUTER.patch("/modify/credential")
+@ROUTER.patch("/modify/{credential_id}")
 def modify_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     credential_id: str,
-    name: Optional[str] = None,
-    comment: Optional[str] = None,
-    allow_insecure: Optional[bool] = None,
-    certificate: Annotated[str, Body()] = None,
-    key_phrase: Annotated[str, Body()] = None,
-    private_key: Annotated[str, Body()] = None,
-    login: Annotated[str, Body()] = None,
-    password: Annotated[str, Body()] = None,
-    auth_algorithm: Optional[SnmpAuthAlgorithm] = None,
-    community: Annotated[str, Body()] = None,
-    privacy_algorithm: Optional[SnmpPrivacyAlgorithm] = None,
-    privacy_password: Annotated[str, Body()] = None,
-    public_key: Annotated[str, Body()] = None,
+    Base: Models.ModifyCredential
 ):
     """Modifies an existing credential.
 
@@ -221,6 +203,7 @@ def modify_credential(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.modify_credential(name=name,credential_id=credential_id,comment=comment,allow_insecure=allow_insecure,certificate=certificate,key_phrase=key_phrase,private_key=private_key,login=login,password=password,auth_algorithm=auth_algorithm,community=community,privacy_algorithm=privacy_algorithm,privacy_password=privacy_password,public_key=public_key)
+            return gmp.modify_credential(credential_id=credential_id,name=Base.name,credential_type=Base.credential_type,comment=Base.comment,allow_insecure=Base.allow_insecure,certificate=Base.certificate,key_phrase=Base.key_phrase,private_key=Base.private_key,login=Base.login,password=Base.password,auth_algorithm=Base.auth_algorithm,community=Base.community,privacy_algorithm=Base.privacy_algorithm,privacy_password=Base.privacy_password,public_key=Base.public_key)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")

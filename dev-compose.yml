@@ -179,14 +179,32 @@ services:
       - gvmd
       - ospd-openvas
 
-# Rest API
+# Rest API Dev Version
   rest-api:
-    image: ghcr.io/shield-cyber/openvas-rest-api:latest
+    build: ./app
     restart: on-failure
     ports:
       - 8000:8000
     environment:
-      - PROD=True # Prod Mode, Only Used for Devs
+      - VERSION=3.0.0
+      - PROD=False # Used for Dev Only
+      - USERNAME=admin # DEFAULT USERNAME 'admin'
+      - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
+    depends_on:
+      - gvmd
+      - redis-db
+    volumes:
+      - gvmd_socket_vol:/run/gvmd
+      - api_logs_vol:/logs
+
+  # Latest Release Version
+  rest-api-latest-release:
+    image: ghcr.io/shield-cyber/openvas-rest-api:latest
+    restart: on-failure
+    ports:
+      - 8001:8000
+    environment:
+      - PROD=True # Used for Dev Only
       - USERNAME=admin # DEFAULT USERNAME 'admin'
       - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
     depends_on:

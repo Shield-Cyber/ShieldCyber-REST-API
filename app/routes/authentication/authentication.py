@@ -54,7 +54,8 @@ async def describe_auth(
         try:
             return XMLResponse(gmp.describe_auth())
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/is_authenticated", response_class=XMLResponse)
 async def is_authenticated(
@@ -75,7 +76,8 @@ async def is_authenticated(
             response = str(gmp.is_authenticated())
             return XMLResponse(f'<is_authenticated_response status="200" status_text="{response}"/>')
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.patch("/modify_auth", response_class=XMLResponse)
 async def modify_auth(
@@ -98,4 +100,5 @@ async def modify_auth(
         try:
             return XMLResponse(gmp.modify_auth(group_name=group_name, auth_conf_settings=auth_conf_settings))
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
