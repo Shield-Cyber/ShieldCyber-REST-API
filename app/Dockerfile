@@ -17,7 +17,7 @@ RUN openssl req -newkey rsa:4096 \
     -keyout ./certs/key.key \
     -subj "/C=US/ST=IN/L=IN/O=Shield/OU=Shield/CN=www.hopliteconsulting.com"
 
-ENV VERSION=3.0.1
+ENV VERSION=3.0.2
 
 COPY . ./app
 
