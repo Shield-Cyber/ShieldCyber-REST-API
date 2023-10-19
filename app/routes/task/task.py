@@ -26,7 +26,7 @@ ROUTER = APIRouter(
 @ROUTER.get("/get/tasks")
 async def get_tasks(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    filter_string: Optional[str] = None,
+    filter_string: Optional[str] = "rows=-1",
     filter_id: Optional[str] = None,
     trash: Optional[bool] = None,
     details: Optional[bool] = None,
