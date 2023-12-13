@@ -1,10 +1,20 @@
 import os
 
-if os.getenv("USERNAME") != None:
-    USERNAME = os.getenv("USERNAME")
-else:
-    USERNAME = "admin"
+# Required Env Variables
+PROD = None
+USERNAME = os.getenv("USERNAME")
 
+# Check Prod Env Var
+CHECK_PROD = os.getenv("PROD")
+try:
+    if CHECK_PROD.lower() != "true":
+        PROD = False
+    else:
+        PROD = True
+except Exception:
+    PROD = False
+
+# Optional Env Variables
 if os.getenv("PASSWORD") != None:
     PASSWORD = os.getenv("PASSWORD")
 else:
@@ -15,12 +25,12 @@ if os.getenv("VERSION") != None:
 else:
     VERSION = '0.0.0'
 
-if os.getenv("DB_HOST") != None:
+if os.getenv("REDIS_HOST") != None:
     DB_HOST = os.getenv("DB_HOST")
 else:
     DB_HOST = 'redis-db'
 
-if os.getenv("DB_PORT") != None:
+if os.getenv("REDIS_PORT") != None:
     DB_PORT = os.getenv("DB_PORT")
 else:
     DB_PORT = 6379

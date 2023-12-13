@@ -9,6 +9,8 @@ from typing import Annotated, Optional, Union
 from gvm.protocols.gmpv208.entities.report_formats import ReportFormatType
 from app import LOGGING_PREFIX
 
+from . import models as Models
+
 ENDPOINT = "report"
 
 LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
@@ -21,7 +23,7 @@ ROUTER = APIRouter(
 
 ### ROUTES ###
 
-@ROUTER.get("/get/report")
+@ROUTER.get("/get/report/{report_id}")
 async def get_report(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_id: str,
@@ -52,7 +54,8 @@ async def get_report(
         try:
             return gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/reports")
 async def get_reports(
@@ -83,9 +86,10 @@ async def get_reports(
         try:
             return gmp.get_reports(filter_string=filter_string,filter_id=filter_id,note_details=note_details,override_details=override_details,ignore_pagination=ignore_pagination,details=details)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.get("/get/report/format")
+@ROUTER.get("/get/format/{report_format_id}")
 async def get_report_format(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_format_id: Union[str, ReportFormatType]
@@ -103,9 +107,10 @@ async def get_report_format(
         try:
             return gmp.get_report_format(report_format_id=report_format_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.get("/get/report/formats")
+@ROUTER.get("/get/formats")
 async def get_report_formats(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     filter_string: Optional[str] = None,
@@ -134,10 +139,11 @@ async def get_report_formats(
         try:
             return gmp.get_report_formats(filter_string=filter_string,filter_id=filter_id,trash=trash,alerts=alerts,params=params,details=details)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.post("/clone/report/formats")
-async def get_report_formats(
+@ROUTER.post("/clone/format/{report_format_id}")
+async def clone_report_format(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_format_id: Union[str, ReportFormatType]
 ):
@@ -155,9 +161,10 @@ async def get_report_formats(
         try:
             return gmp.clone_report_format(report_format_id=report_format_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.delete("/delete/report")
+@ROUTER.delete("/delete/report/{report_id}")
 async def delete_report(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_id: str
@@ -173,35 +180,34 @@ async def delete_report(
         try:
             return gmp.delete_report(report_id=report_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.delete("/delete/report/format")
-async def delete_report(
+@ROUTER.delete("/delete/format/{report_format_id}")
+async def delete_report_format(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    report_format_id: Union[str, ReportFormatType]
+    report_format_id: Optional[Union[str, ReportFormatType]] = None,
+    ultimate: Optional[bool] = False,
 ):
-    """Clone a report format from an existing one
+    """Deletes an existing report format
 
         Arguments:
 
-            report_format_id: UUID of the existing report format or ReportFormatType (enum)
-
-        Returns:
-            The response.
+            report_format_id: UUID of the report format to be deleted, or ReportFormatType (enum)
+            ultimate: Whether to remove entirely, or to the trashcan.
         """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.delete_report_format(report_format_id=report_format_id)
+            return gmp.delete_report_format(report_format_id=report_format_id,ultimate=ultimate)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.post("/import/report")
 async def import_report(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    report: str,
-    task_id: str,
-    in_assets: Optional[bool] = None,
+    Base: Models.ImportReport
 ):
     """Import a Report from XML
 
@@ -217,14 +223,15 @@ async def import_report(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.import_report(report=report,task_id=task_id,in_assets=in_assets)
+            return gmp.import_report(report=Base.report,task_id=Base.task_id,in_assets=Base.in_assets)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.post("/import/report/format")
+@ROUTER.post("/import/format")
 async def import_report_format(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    report_format: str
+    Base: Models.ImportFormat
 ):
     """Import a report format from XML
 
@@ -238,19 +245,16 @@ async def import_report_format(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.import_report_format(report_format=report_format)
+            return gmp.import_report_format(report_format=Base.report_format)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.patch("/modify/report/format")
+@ROUTER.patch("/modify/format/{report_format_id}")
 async def modify_report_format(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_format_id: Union[str, ReportFormatType],
-    active: Optional[bool] = None,
-    name: Optional[str] = None,
-    summary: Optional[str] = None,
-    param_name: Optional[str] = None,
-    param_value: Optional[str] = None,
+    Base: Models.ModifyFormat
 ):
     """Modifies an existing report format.
 
@@ -269,11 +273,12 @@ async def modify_report_format(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.modify_report_format(report_format_id=report_format_id,active=active,name=name,summary=summary,param_name=param_name,param_value=param_value)
+            return gmp.modify_report_format(report_format_id=report_format_id,active=Base.active,name=Base.name,summary=Base.summary,param_name=Base.param_name,param_value=Base.param_value)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.get("/verify/report/format")
+@ROUTER.get("/verify/format/{report_format_id}")
 async def verify_report_format(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     report_format_id: Union[str, ReportFormatType]
@@ -298,36 +303,5 @@ async def verify_report_format(
         try:
             return gmp.verify_report_format(report_format_id=report_format_id)
         except Exception as err:
-            return ErrorResponse(err)
-
-@ROUTER.get("/get/system/reports")
-async def get_system_reports(
-    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    name: Optional[str] = None,
-    duration: Optional[int] = None,
-    start_time: Optional[str] = None,
-    end_time: Optional[str] = None,
-    brief: Optional[bool] = None,
-    slave_id: Optional[str] = None
-):
-    """Verify an existing report format
-
-        Verifies the trust level of an existing report format. It will be
-        checked whether the signature of the report format currently matches the
-        report format. This includes the script and files used to generate
-        reports of this format. It is *not* verified if the report format works
-        as expected by the user.
-
-        Arguments:
-
-            report_format_id: UUID of the report format to be verified or ReportFormatType (enum)
-
-        Returns:
-            The response.
-        """
-    with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
-        try:
-            return gmp.get_system_reports(name=name,duration=duration,start_time=start_time,end_time=end_time,brief=brief,slave_id=slave_id)
-        except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")

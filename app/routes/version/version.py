@@ -33,7 +33,8 @@ async def get_version(
         try:
             return gmp.get_version()
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
     
 @ROUTER.get("/get/protocol/version")
 async def get_protocol_version(
@@ -49,7 +50,8 @@ async def get_protocol_version(
             content = str(gmp.get_protocol_version())
             return Response(content=content, media_type="application/xml")
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
     
 @ROUTER.get("/get/api/version")
 async def get_api_version(

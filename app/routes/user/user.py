@@ -39,7 +39,8 @@ async def get_user(
         try:
             return gmp.get_user(user_id=user_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/user/settings")
 async def get_user_settings(
@@ -60,7 +61,8 @@ async def get_user_settings(
         try:
             return gmp.get_user_settings(filter_string=filter_string)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/user/setting")
 async def get_user_setting(
@@ -81,7 +83,8 @@ async def get_user_setting(
         try:
             return gmp.get_user_setting(setting_id=setting_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
     
 @ROUTER.get("/get/users")
 async def get_users(
@@ -104,4 +107,5 @@ async def get_users(
         try:
             return gmp.get_users(filter_id=filter_id, filter_string=filter_string)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")

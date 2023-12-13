@@ -1,4 +1,4 @@
-FROM python:3.11.4
+FROM python:3.11.4-slim
 
 WORKDIR /opt
 
@@ -6,9 +6,9 @@ COPY requirements.txt /opt
 RUN pip3 install -r requirements.txt
 
 RUN mkdir certs
-RUN apt update && \
-    apt install openssl && \
-    openssl req -newkey rsa:4096 \
+RUN apt update
+RUN apt install openssl -y
+RUN openssl req -newkey rsa:4096 \
     -x509 \
     -sha256 \
     -days 3650 \
@@ -17,7 +17,7 @@ RUN apt update && \
     -keyout ./certs/key.key \
     -subj "/C=US/ST=IN/L=IN/O=Shield/OU=Shield/CN=www.hopliteconsulting.com"
 
-ENV VERSION=2.7.8
+ENV VERSION=3.0.8
 
 COPY . ./app
 

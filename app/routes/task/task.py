@@ -9,6 +9,8 @@ from typing import Annotated, Optional, List
 from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
 from app import LOGGING_PREFIX
 
+from . import models as Models
+
 ENDPOINT = "task"
 
 LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.{ENDPOINT}")
@@ -24,7 +26,7 @@ ROUTER = APIRouter(
 @ROUTER.get("/get/tasks")
 async def get_tasks(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    filter_string: Optional[str] = None,
+    filter_string: Optional[str] = "rows=-1",
     filter_id: Optional[str] = None,
     trash: Optional[bool] = None,
     details: Optional[bool] = None,
@@ -48,9 +50,10 @@ async def get_tasks(
         try:
             return gmp.get_tasks(filter_string=filter_string, filter_id=filter_id, trash=trash, details=details, schedules_only=schedules_only)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.get("/get/task", tags=["task"])
+@ROUTER.get("/get/{task_id}")
 async def get_task(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str
@@ -69,9 +72,10 @@ async def get_task(
         try:
             return gmp.get_task(task_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.delete("/delete/task", tags=["task"])
+@ROUTER.delete("/delete/{task_id}")
 async def delete_task(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str,
@@ -89,23 +93,13 @@ async def delete_task(
         try:
             return gmp.delete_task(task_id=task_id, ultimate=ultimate)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.post("/create/task", tags=["task"])
+@ROUTER.post("/create")
 async def create_task(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    name: str,
-    config_id: str,
-    target_id: str,
-    scanner_id: str,
-    alterable: Optional[bool] = None,
-    hosts_ordering: Optional[HostsOrdering] = None,
-    schedule_id: Optional[str] = None,
-    alert_ids: Optional[List[str]] = None,
-    comment: Optional[str] = None,
-    schedule_periods: Optional[int] = None,
-    observers: Optional[List[str]] = None,
-    preferences: Optional[dict] = None,
+    Base: Models.CreateTask
     ):
     """Create a new scan task
 
@@ -130,26 +124,15 @@ async def create_task(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.create_task(name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,alert_ids=alert_ids,comment=comment,schedule_periods=schedule_periods,observers=observers,preferences=preferences)
+            return gmp.create_task(name=Base.name,config_id=Base.config_id,target_id=Base.target_id,scanner_id=Base.scanner_id,alterable=Base.alterable,hosts_ordering=Base.hosts_ordering,schedule_id=Base.schedule_id,alert_ids=Base.alert_ids,comment=Base.comment,schedule_periods=Base.schedule_periods,observers=Base.observers,preferences=Base.preferences)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.patch("/modify/task", tags=["task"])
+@ROUTER.patch("/modify/{task_id}")
 async def modify_task(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    task_id: str,
-    name: Optional[str] = None,
-    config_id: Optional[str] = None,
-    target_id: Optional[str] = None,
-    scanner_id: Optional[str] = None,
-    alterable: Optional[bool] = None,
-    hosts_ordering: Optional[HostsOrdering] = None,
-    schedule_id: Optional[str] = None,
-    schedule_periods: Optional[int] = None,
-    comment: Optional[str] = None,
-    alert_ids: Optional[List[str]] = None,
-    observers: Optional[List[str]] = None,
-    preferences: Optional[dict] = None,
+    Base: Models.ModifyTask
     ):
     """Modifies an existing task.
 
@@ -174,11 +157,12 @@ async def modify_task(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.modify_task(task_id=task_id,name=name,config_id=config_id,target_id=target_id,scanner_id=scanner_id,alterable=alterable,hosts_ordering=hosts_ordering,schedule_id=schedule_id,schedule_periods=schedule_periods,comment=comment,alert_ids=alert_ids,observers=observers,preferences=preferences)
+            return gmp.modify_task(task_id=Base.task_id,name=Base.name,config_id=Base.config_id,target_id=Base.target_id,scanner_id=Base.scanner_id,alterable=Base.alterable,hosts_ordering=Base.hosts_ordering,schedule_id=Base.schedule_id,schedule_periods=Base.schedule_periods,comment=Base.comment,alert_ids=Base.alert_ids,observers=Base.observers,preferences=Base.preferences)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.post("/stop/task", tags=["task"])
+@ROUTER.post("/stop/{task_id}")
 async def stop_task(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str
@@ -197,9 +181,10 @@ async def stop_task(
         try:
             return gmp.stop_task(task_id=task_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.post("/start/task", tags=["task"])
+@ROUTER.post("/start/{task_id}")
 async def start_task(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str
@@ -218,9 +203,10 @@ async def start_task(
         try:
             return gmp.start_task(task_id=task_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.post("/clone/task", tags=["task"])
+@ROUTER.post("/clone/{task_id}")
 async def clone_task(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str
@@ -239,13 +225,13 @@ async def clone_task(
         try:
             return gmp.clone_task(task_id=task_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.patch("/move/task", tags=["task"])
+@ROUTER.patch("/move/{task_id}")
 async def move_task(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    task_id: str,
-    slave_id: Optional[str] = None
+    Base: Models.MoveTask
     ):
     """Move an existing task to another GMP slave scanner or the master
 
@@ -260,11 +246,12 @@ async def move_task(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.move_task(task_id=task_id, slave_id=slave_id)
+            return gmp.move_task(task_id=Base.task_id, slave_id=Base.slave_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
 
-@ROUTER.post("/resume/task", tags=["task"])
+@ROUTER.post("/resume/{task_id}")
 async def resume_task(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
     task_id: str,
@@ -283,4 +270,5 @@ async def resume_task(
         try:
             return gmp.resume_task(task_id=task_id)
         except Exception as err:
-            return ErrorResponse(err)
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
