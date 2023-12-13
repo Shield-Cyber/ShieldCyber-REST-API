@@ -181,7 +181,7 @@ services:
 
 # Rest API
   rest-api:
-    image: ghcr.io/shield-cyber/openvas-rest-api:latest
+    image: ghcr.io/shield-cyber/shieldcyber-rest-api:latest
     restart: on-failure
     pull_policy: always
     ports:
