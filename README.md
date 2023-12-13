@@ -17,13 +17,13 @@ Ubuntu / Apt Package Manager Installation Script
 
 Download
 ```
-git clone https://github.com/Shield-Cyber/OpenVAS-REST-API.git
+git clone https://github.com/Shield-Cyber/ShieldCyber-REST-API.git
 ```
 
 Install dependencies and start the OpenVAS Scanner
 
 ```
-cd OpenVAS-REST-API/ && ./install.sh
+cd ShieldCyber-REST-API/ && ./install.sh
 ```
 
 #### Install
