@@ -38,7 +38,7 @@ cd ShieldCyber-REST-API/ && ./install.sh
 - Make Dir for Install
 - CD into Dir
 - Download File
-- `wget https://raw.githubusercontent.com/Shield-Cyber/OpenVAS-REST-API/main/install.sh`
+- `wget https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/install.sh`
 - Run install.sh
 - Follow Prompts
 
