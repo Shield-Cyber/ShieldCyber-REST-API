@@ -186,13 +186,14 @@ services:
     ports:
       - 8000:8000
     environment:
-      - VERSION=3.0.0
+      - VERSION=0.0.0
       - PROD=False # Used for Dev Only
       - USERNAME=admin # DEFAULT USERNAME 'admin'
       - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
     depends_on:
       - gvmd
       - redis-db
+      - rest-api-latest-release
     volumes:
       - gvmd_socket_vol:/run/gvmd
       - api_logs_vol:/logs
@@ -204,7 +205,7 @@ services:
     ports:
       - 8001:8000
     environment:
-      - PROD=True # Used for Dev Only
+      - PROD=False # Used for Dev Only
       - USERNAME=admin # DEFAULT USERNAME 'admin'
       - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
     depends_on:
@@ -214,15 +215,17 @@ services:
       - gvmd_socket_vol:/run/gvmd
       - api_logs_vol:/logs
 
-# Redis Database for Rest API
+# Redis Database for Dev Rest API
   redis-db:
-    image: redis:latest
-    command: "redis-server --appendonly yes"
+    image: redis/redis-stack:latest
     restart: on-failure
-    expose:
-      - 6379:6379
+    environment:
+      - REDIS_ARGS=--appendonly yes
+    ports:
+      - 6378:6379
+      - 8002:8001
     volumes:
-      - redis_data:/data
+      - redis_dev_data:/data
 
 volumes:
   gpg_data_vol:
@@ -238,4 +241,4 @@ volumes:
   ospd_openvas_socket_vol:
   redis_socket_vol:
   api_logs_vol:
-  redis_data:
+  redis_dev_data:
