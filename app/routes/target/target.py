@@ -60,30 +60,6 @@ async def create_target(
             LOGGER.error(f"GMP Error: {err}")
             return ErrorResponse("Internal Server Error")
 
-@ROUTER.get("/get/{target_id}")
-async def get_target(
-    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    target_id: str,
-    tasks: Optional[bool] = None
-):
-    """Request a single target
-
-        Arguments:
-
-            target_id: UUID of an existing target
-            tasks: Whether to include list of tasks that use the target
-
-        Returns:
-            The response.
-        """
-    with Gmp(connection=UnixSocketConnection()) as gmp:
-        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
-        try:
-            return gmp.get_target(target_id=target_id, tasks=tasks)
-        except Exception as err:
-            LOGGER.error(f"GMP Error: {err}")
-            return ErrorResponse("Internal Server Error")
-    
 @ROUTER.get("/get/targets")
 async def get_targets(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
@@ -108,6 +84,30 @@ async def get_targets(
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_targets(filter_string=filter_string,filter_id=filter_id,trash=trash,tasks=tasks)
+        except Exception as err:
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
+
+@ROUTER.get("/get/{target_id}")
+async def get_target(
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
+    target_id: str,
+    tasks: Optional[bool] = None
+):
+    """Request a single target
+
+        Arguments:
+
+            target_id: UUID of an existing target
+            tasks: Whether to include list of tasks that use the target
+
+        Returns:
+            The response.
+        """
+    with Gmp(connection=UnixSocketConnection()) as gmp:
+        gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
+        try:
+            return gmp.get_target(target_id=target_id, tasks=tasks)
         except Exception as err:
             LOGGER.error(f"GMP Error: {err}")
             return ErrorResponse("Internal Server Error")
