@@ -25,12 +25,12 @@ if os.getenv("VERSION") != None:
 else:
     VERSION = '0.0.0'
 
-if os.getenv("REDIS_HOST") != None:
+if os.getenv("DB_HOST") != None:
     DB_HOST = os.getenv("DB_HOST")
 else:
     DB_HOST = 'redis-db'
 
-if os.getenv("REDIS_PORT") != None:
+if os.getenv("DB_PORT") != None:
     DB_PORT = os.getenv("DB_PORT")
 else:
     DB_PORT = 6379
