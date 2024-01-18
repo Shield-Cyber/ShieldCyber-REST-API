@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from pydantic import BaseModel
 import logging
 from app import LOGGING_PREFIX, USERNAME, PASSWORD
@@ -24,7 +24,7 @@ if read_db == None:
         "admin": {
             "username": USERNAME,
             "password": PASSWORD,
-            "hashed_password": CryptContext(schemes=["bcrypt"], deprecated="auto").hash(PASSWORD),
+            "hashed_password": bcrypt.hashpw(PASSWORD.encode('utf-8'), bcrypt.gensalt()),
             "disabled": False,
         }
     }
@@ -52,17 +52,15 @@ class Auth():
     class UserInDB(User):
         hashed_password: str
 
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="authenticate")
 
     def verify_password(plain_password, hashed_password):
         LOGGER.debug("Verfying Password")
-        return Auth.pwd_context.verify(plain_password, hashed_password)
+        return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
     def get_password_hash(password):
         LOGGER.debug("Getting Password Hash")
-        return Auth.pwd_context.hash(password)
+        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     
     # I hate this, its terrible and it should be changed to make something actually secure and not stupid.
     def get_admin_password():
