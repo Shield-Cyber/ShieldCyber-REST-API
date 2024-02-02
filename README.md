@@ -20,7 +20,7 @@ Download
 git clone https://github.com/Shield-Cyber/ShieldCyber-REST-API.git
 ```
 
-Install dependencies and start the OpenVAS Scanner
+Install dependencies and start the Shield Scanner
 
 ```
 cd ShieldCyber-REST-API/ && ./install.sh
