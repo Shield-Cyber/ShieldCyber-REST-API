@@ -1,4 +1,4 @@
-[![CodeQL](https://github.com/Shield-Cyber/OpenVAS-REST-API/actions/workflows/codeql.yml/badge.svg)](https://github.com/Shield-Cyber/OpenVAS-REST-API/actions/workflows/codeql.yml)
+[![CodeQL](https://github.com/Shield-Cyber/ShieldCyber-REST-API/actions/workflows/codeql.yml/badge.svg)](https://github.com/Shield-Cyber/ShieldCyber-REST-API/actions/workflows/codeql.yml)
 
 # Installation Instructions
 
