@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Define associative array for options and their descriptions
+declare -A options
+options["-I, --full-install"]="Install the Shield Scanner"
+options["-F, --full-update"]="Perform a full update"
+options["-V, --vuln-update"]="Perform a vulnerability update"
+options["-h, --help"]="Display this help message"
+
+# Display help message
+display_help() {
+    echo "Usage: $0 [OPTIONS]"
+    echo "Options:"
+    for option in "${!options[@]}"; do
+        printf "  %-20s %s\n" "$option" "${options[$option]}"
+    done
+    exit 1
+}
+
+# Check for the presence of a flag
+if [ "$#" -eq 0 ]; then
+    echo "Error: Please provide a flag."
+    display_help
+fi
+
+# Parse command-line options
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -F|--full-update)
+            bash /opt/shield/scripts/full-update.sh
+            ;;
+        -V|--vuln-update)
+            bash /opt/shield/scripts/vuln-update.sh
+            ;;
+        -I|--full-install)
+            bash /opt/shield/scripts/full-install.sh
+            ;;
+        -h|--help)
+            display_help
+            ;;
+        *)
+            echo "Error: Invalid flag."
+            display_help
+            ;;
+    esac
+    shift
+done
+
+exit 0
