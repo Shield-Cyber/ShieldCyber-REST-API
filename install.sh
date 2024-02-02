@@ -1,48 +1,39 @@
-echo Installing OpenVAS and its Dependencies
-echo This version of OpenVAS has an additional piece of software to allow for the Shield Agent to connect to it via an API.
+#!/bin/bash
 
-read -p "Do you want to continue? (Y/N): " answer
+# Define color codes
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+YELLOW="\033[1;33m"
+NC="\033[0m" # No Color
 
-if [[ $answer == [Yy] ]]; then
-    echo "Continuing..."
-elif [[ $answer == [Nn] ]]; then
-    echo "Exiting..."
-    exit 0
-else
-    echo "Invalid input. Please answer with Y or N."
-fi
+instDir="/opt/shield/scripts"
+downloadURL="https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/scripts/"
 
-echo Installing Docker...
+ensure_directory() {
+    local directory=$1
 
-sudo apt-get remove docker docker-engine docker.io containerd runc
+    if [ ! -d "$directory" ]; then
+        mkdir -p "$directory"
+        echo -e "${YELLOW}$directory created.${NC}"
+    fi
+}
 
-sudo apt-get update
-sudo apt-get install ca-certificates curl gnupg
+download_file() {
+    local url=$downloadURL$1
+    local filename=$(basename "$url")
+    local filepath="$instDir/$filename"
 
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
+    ensure_directory "$instDir"
 
-echo \
-  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
-sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    echo -e "${YELLOW}Downloading $filename to $instDir... ${NC}"
+    curl -sS "$url" -o "$filepath"
+    echo -e "${GREEN}$filename downloaded to $instDir! ${NC}"
+}
 
-sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+curl -sSo /usr/local/bin/shield https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/scripts/shield
+chmod +x /usr/local/bin/shield
 
-echo Docker Installed!
-
-echo Downloading OpenVAS Compose File...
-
-wget https://raw.githubusercontent.com/Shield-Cyber/OpenVAS-REST-API/main/compose.yml
-
-echo OpenVAS Compose File Downloaded!
-
-read -sp "Enter OpenVAS / API Admin Password: " password
-
-touch .env
-
-echo "PASSWORD=$password" >> .env
-
-docker compose up -d
+echo -e "${YELLOW}Downloading Shield Helper Scripts ${NC}"
+download_file full-install.sh
+download_file vuln-update.sh
+download_file full-update.sh

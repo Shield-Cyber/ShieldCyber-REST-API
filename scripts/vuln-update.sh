@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Define color codes
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+YELLOW="\033[1;33m"
+NC="\033[0m" # No Color
+
 # Set the directory of the compose.yml file
 COMPOSE_DIR="/opt/shield"
 
@@ -8,6 +14,8 @@ if [ ! -d "$COMPOSE_DIR" ]; then
   echo -e "${RED}Error: Directory not found ${COMPOSE_DIR}${NC}"
   exit 1
 fi
+
+echo -e "${YELLOW}Updating Vulnerabikity Database ${NC}"
 
 # Run docker-compose with the specified directory
 docker compose -f "${COMPOSE_DIR}/compose.yml" up -d > /dev/null 2>&1

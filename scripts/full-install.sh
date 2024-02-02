@@ -25,26 +25,16 @@ download_file() {
 ensure_directory() {
     local directory=$1
 
-    if [ -d "$directory" ]; then
-        read -p "$(echo -e "${YELLOW}$directory already exists. Do you want to overwrite it? (y/N): ${NC}")" overwrite_choice
-
-        if [ "$overwrite_choice" == "y" ]; then
-            rm -rf "$directory"
-            echo -e "${YELLOW}$directory overwritten.${NC}"
-        else
-            echo -e "${YELLOW}Skipping overwrite.${NC}"
-            exit 1
-        fi
-    else
-        mkdir -p "$directory"
-        echo -e "${YELLOW}$directory created.${NC}"
+    if [ ! -d "$directory" ]; then
+        echo -e "${RED}$directory does not exist. Exiting.${NC}"
+        exit 1
     fi
 }
 
 echo -e "${YELLOW}Waiting 10 Seconds Before Starting Installation ${NC}"
 sleep 10
 
-# Check and ask to overwrite installation directory
+# Check if installation directory exists
 ensure_directory "$instDir"
 
 echo -e "${YELLOW}Installing Shield Scanner and its Dependencies ${NC}"
