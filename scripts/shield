@@ -6,6 +6,7 @@ options["-I, --full-install"]="Install the Shield Scanner"
 options["-F, --full-update"]="Perform a full update"
 options["-V, --vuln-update"]="Perform a vulnerability update"
 options["-h, --help"]="Display this help message"
+options["-P, --password"]="Set the password for installation"
 
 # Display help message
 display_help() {
@@ -33,7 +34,12 @@ while [[ "$#" -gt 0 ]]; do
             bash /opt/shield/scripts/vuln-update.sh
             ;;
         -I|--full-install)
-            bash /opt/shield/scripts/full-install.sh
+            # Pass along the password flag to full-install.sh if it exists
+            if [[ "$@" =~ "-P" ]] || [[ "$@" =~ "--password" ]]; then
+                bash /opt/shield/scripts/full-install.sh "$@"
+            else
+                bash /opt/shield/scripts/full-install.sh
+            fi
             ;;
         -h|--help)
             display_help

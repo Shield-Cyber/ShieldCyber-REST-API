@@ -30,8 +30,10 @@ download_file() {
     echo -e "${GREEN}$filename downloaded to $instDir! ${NC}"
 }
 
+echo -e "${YELLOW}Downloading Shield Executable ${NC}"
 curl -sSo /usr/local/bin/shield https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/scripts/shield
 chmod +x /usr/local/bin/shield
+echo -e "${GREEN}Shield Executable Downloaded! ${NC}"
 
 echo -e "${YELLOW}Downloading Shield Helper Scripts ${NC}"
 download_file full-install.sh
