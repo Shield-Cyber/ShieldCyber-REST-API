@@ -1,6 +1,7 @@
 #!/bin/bash
 
 instDir="/opt/shield"
+password_flag=false
 
 # Define color codes
 RED="\033[0;31m"
@@ -30,6 +31,31 @@ ensure_directory() {
         exit 1
     fi
 }
+
+# Function to set the password in the .env file
+set_password() {
+    local password=$1
+    local env_filepath="$instDir/.env"
+    echo -e "PASSWORD=$password" > "$env_filepath"
+    echo -e "${GREEN}Password set successfully.${NC}"
+}
+
+# Parse command-line arguments
+while [[ $# -gt 0 ]]; do
+    key="$1"
+
+    case $key in
+        -P|--password)
+            password_flag=true
+            password="$2"
+            shift
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
 
 echo -e "${YELLOW}Waiting 10 Seconds Before Starting Installation ${NC}"
 sleep 10
@@ -74,23 +100,28 @@ fi
 # Download Compose File
 compose_filepath=$(download_file "https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/compose.yml")
 
-# Check if .env file exists
-env_filepath="$instDir/.env"
-if [ -f "$env_filepath" ]; then
-    # .env file exists, ask user if they want to update the password
-    read -p "$(echo -e "${YELLOW}Installation Found: Do you want to update the password? (y/N): ${NC}")" update_choice
+# Set password if flag is provided
+if [ "$password_flag" = true ]; then
+    set_password "$password"
+else
+    # Check if .env file exists
+    env_filepath="$instDir/.env"
+    if [ -f "$env_filepath" ]; then
+        # .env file exists, ask user if they want to update the password
+        read -p "$(echo -e "${YELLOW}Installation Found: Do you want to update the password? (y/N): ${NC}")" update_choice
 
-    if [ "$update_choice" == "y" ]; then
+        if [ "$update_choice" == "y" ]; then
+            read -sp "Enter Shield Scanner / API Admin Password: " password
+            echo -e "\nPASSWORD=$password" > "$env_filepath"
+            echo -e "\n${GREEN}Password updated successfully.${NC}"
+        else
+            echo -e "\n${YELLOW}Skipping password update.${NC}"
+        fi
+    else
+        # .env file doesn't exist, create and update it
         read -sp "Enter Shield Scanner / API Admin Password: " password
         echo -e "\nPASSWORD=$password" > "$env_filepath"
-        echo -e "\n${GREEN}Password updated successfully.${NC}"
-    else
-        echo -e "\n${YELLOW}Skipping password update.${NC}"
     fi
-else
-    # .env file doesn't exist, create and update it
-    read -sp "Enter Shield Scanner / API Admin Password: " password
-    echo -e "\nPASSWORD=$password" > "$env_filepath"
 fi
 
 # Start Shield Scanner
