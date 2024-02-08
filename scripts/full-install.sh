@@ -34,9 +34,9 @@ ensure_directory() {
 
 # Function to set the password in the .env file
 set_password() {
-    local password=$1
+    local password="$1"
     local env_filepath="$instDir/.env"
-    echo -e "PASSWORD=$password" > "$env_filepath"
+    echo -e "PASSWORD='$password'" > "$env_filepath"
     echo -e "${GREEN}Password set successfully.${NC}"
 }
 

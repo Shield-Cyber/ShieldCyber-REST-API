@@ -34,12 +34,28 @@ while [[ "$#" -gt 0 ]]; do
             bash /opt/shield/scripts/vuln-update.sh
             ;;
         -I|--full-install)
-            # Pass along the password flag to full-install.sh if it exists
-            if [[ "$@" =~ "-P" ]] || [[ "$@" =~ "--password" ]]; then
-                bash /opt/shield/scripts/full-install.sh "$@"
+            password_flag=""
+            while [[ "$#" -gt 0 ]]; do
+                case $1 in
+                    -P|--password)
+                        password_flag="$1 $2"
+                        shift 2
+                        ;;
+                    *)
+                        shift
+                        ;;
+                esac
+            done
+            
+            # Pass along the password flag to full-install.sh
+            if [[ -n "$password_flag" ]]; then
+                bash /opt/shield/scripts/full-install.sh $password_flag
             else
                 bash /opt/shield/scripts/full-install.sh
             fi
+            ;;
+        -P|--password)
+            echo "${YELLOW}Used with -I/--install flag. ${NC}"
             ;;
         -h|--help)
             display_help
