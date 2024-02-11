@@ -50,7 +50,7 @@ To install the Shield scanner successfully on a Mac or Windows 10/11 OS, WSL (Wi
 **Note**: You will need to install the Shield Cyber Agent.Shield service following the instructions within the [Shield Documentation](https://docs.shieldcyber.io/docs/deployment/network-scans.html) and use the Shield Service MSI to complete the Agent.Shield service installation.
 
 ## Link the Shield Scanner within the Platform
-To use the scanner, it will need to be linked within the Shield platform.  To complete this step, navigate to the **Settings** -> **Scan Config** -> **Shield** page, click **New Configuration**, and then enter the following values, then save the created configuration:
+To use the scanner, it will need to be linked within the Shield platform.  To complete this step, navigate to the **Settings** -> **Scan Config** -> **Shield** [page](https://platform.shieldcyber.io/settings), click **New Configuration**, and then enter the following values, then save the created configuration:
   - **Location** - Select the location that was created for the scanner that is being linked.  The Shield service needs to be installed and running for the Location value to populate.
   - **Access Key** - Enter the username for the scanner.  **Admin** is the default username for all Shield scanner installations.
   - **Secret Key**: Enter the password for the scanner that had previously been created.
