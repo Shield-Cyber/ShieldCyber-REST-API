@@ -57,6 +57,6 @@ To use the scanner, it will need to be linked within the Shield platform.  To co
   - **API URL**: Enter the URL for the API of the scanner.  By default the API runs on port 8000, so if the scanner is running on the same device where the service is running, then the API value would be the following `https://localhost:8000/`
 
 ### Notes
-- Username is _admin_
+- Username is **admin**
 - Startup of services may take a few minutes as the databases need to update before the scanner can create and start scans.
 - Windows and MacOS Environments need to have a user login to the system _BEFORE_ the docker engine will start, this installation is not reccomended for an unattanded or server setup.
