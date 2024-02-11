@@ -26,7 +26,7 @@ To install on a Linux based OS, there is a single script that can be downloaded 
 
 `sudo shield -I -P 'CREATE-SCANNER-PASSWORD'`
 
-### Windows or MacOS
+### Windows OS & MacOS
 
 There are limitations installing the Shield scanner on Windows systems.  Specifically, to run the scanner, the Windows host needs to have Docker Desktop installed which can only run on Windows workstations.  Additionally, the installation process is not as automated as the Linux versions of the deployment.
 
@@ -43,7 +43,7 @@ To install the Shield scanner successfully on a Mac or Windows 10/11 OS, WSL (Wi
 2. Unzip the folder contents
 3. Navigate to the *ShieldCyber-REST-API-main* folder
 4. Open the *example.env* file within a text editor & change the `yourpasswordhere` value and save
-5. Re-name the example.env file as .env
+5. Re-name the *example.env* file to *.env*
 6. Open a command prompt as administrator, and navigate to the *ShieldCyber-REST-API-main* folder
 7. Install and start the Shield scanner with the following command: `docker compose up -d`
 
