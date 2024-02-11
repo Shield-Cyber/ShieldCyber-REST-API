@@ -81,7 +81,12 @@ download_file() {
 # Install prerequisites
 sudo apt udpate && sudo apt upgrade
 echo "Installing prerequisites..."
-sudo apt update && sudo apt install -y dotnet-sdk-7.0 aspnetcore-runtime-7.0 jq unzip
+sudo apt update 
+sudo apt install -y dotnet-sdk-7.0 
+sudo apt install -y aspnetcore-runtime-7.0 
+sudo apt install -y jq 
+sudo apt install -y unzip
+sudo apt update
 
 # Download and setup Shield Linux Scanner Service
 echo "Downloading and setting up Shield Linux Scanner Service..."
