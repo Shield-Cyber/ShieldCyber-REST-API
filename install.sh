@@ -79,7 +79,7 @@ download_file() {
 }
 
 # Install prerequisites
-sudo apt udpate && sudo apt upgrade
+sudo apt update && sudo apt upgrade
 echo "Installing prerequisites..."
 sudo apt update 
 sudo apt install -y dotnet-sdk-7.0 
