@@ -18,6 +18,11 @@ To install on a Linux based OS, there is a single script that can be downloaded 
 
 `sudo wget https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/install.sh`
 
+
+#### Update File Permissions
+
+`sudo chmod +x install.sh`
+
 #### Install & Deploy the Shield Service
 
 `sudo ./install.sh -s 'SUBSCRIPTION-ID' -l 'LOCATION' -k 'API-KEY'`
