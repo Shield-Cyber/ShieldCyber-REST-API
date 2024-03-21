@@ -158,6 +158,7 @@ async def delete_target(
 @ROUTER.patch("/modify/{target_id}")
 async def modify_target(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
+    target_id: str,
     Base: Models.ModifyTarget
 ):
     """Modifies an existing target.
@@ -186,7 +187,7 @@ async def modify_target(
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
-            return gmp.modify_target(target_id=Base.target_id,name=Base.name,comment=Base.comment,hosts=Base.hosts,exclude_hosts=Base.exclude_hosts,ssh_credential_id=Base.ssh_credential_id,ssh_credential_port=Base.ssh_credential_port,smb_credential_id=Base.smb_credential_id,esxi_credential_id=Base.esxi_credential_id,snmp_credential_id=Base.snmp_credential_id,alive_test=Base.alive_test,allow_simultaneous_ips=Base.allow_simultaneous_ips,reverse_lookup_only=Base.reverse_lookup_only,reverse_lookup_unify=Base.reverse_lookup_unify,port_list_id=Base.port_list_id)
+            return gmp.modify_target(target_id=target_id,name=Base.name,comment=Base.comment,hosts=Base.hosts,exclude_hosts=Base.exclude_hosts,ssh_credential_id=Base.ssh_credential_id,ssh_credential_port=Base.ssh_credential_port,smb_credential_id=Base.smb_credential_id,esxi_credential_id=Base.esxi_credential_id,snmp_credential_id=Base.snmp_credential_id,alive_test=Base.alive_test,allow_simultaneous_ips=Base.allow_simultaneous_ips,reverse_lookup_only=Base.reverse_lookup_only,reverse_lookup_unify=Base.reverse_lookup_unify,port_list_id=Base.port_list_id)
         except Exception as err:
             LOGGER.error(f"GMP Error: {err}")
             return ErrorResponse("Internal Server Error")
