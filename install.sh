@@ -105,17 +105,6 @@ sudo chmod +x /opt/shield/ShieldCyber.Agent.Shield
 # Ensure /opt/shield directory exists
 ensure_directory "/opt/shield"
 
-# Download update-service.sh to /opt/shield
-echo "Downloading update-service.sh to /opt/shield..."
-curl -sS "https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/update-service.sh" -o "/opt/shield/update-service.sh"
-# Alternatively, you can use wget:
-# wget https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/update-service.sh -O /opt/shield/update-service.sh
-
-# Set executable permission for the script
-chmod +x /opt/shield/update-service.sh
-
-echo -e "${GREEN}update-service.sh downloaded and setup complete.${NC}"
-
 # Update appsettings.json
 echo "Updating appsettings.json..."
 jq --arg subscriptionID "$subscriptionID" \
@@ -141,3 +130,14 @@ download_file full-install.sh
 download_file vuln-update.sh
 download_file full-update.sh
 echo -e "${GREEN}Shield Scanner Software setup complete.${NC}"
+
+# Download update-service.sh to /opt/shield
+echo "Downloading update-service.sh to /opt/shield..."
+curl -sS "https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/update-service.sh" -o "/opt/shield/update-service.sh"
+# Alternatively, you can use wget:
+# wget https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/update-service.sh -O /opt/shield/update-service.sh
+
+# Set executable permission for the script
+chmod +x /opt/shield/update-service.sh
+
+echo -e "${GREEN}update-service.sh downloaded and setup complete.${NC}"
