@@ -55,20 +55,20 @@ services:
 
   redis-server:
     image: greenbone/redis-server:latest
-    restart: on-failure
+    restart: unless-stopped
     volumes:
       - redis_socket_vol:/run/redis/
 
   pg-gvm:
     image: greenbone/pg-gvm:stable
-    restart: on-failure
+    restart: unless-stopped
     volumes:
       - psql_data_vol:/var/lib/postgresql
       - psql_socket_vol:/var/run/postgresql
 
   gvmd:
     image: greenbone/gvmd:stable
-    restart: on-failure
+    restart: unless-stopped
     environment:
       - USERNAME=admin # DEFAULT USERNAME 'admin'
       - PASSWORD=${PASSWORD:-admin} # Admin Password Set by Env File
@@ -98,7 +98,7 @@ services:
 
   gsa:
     image: greenbone/gsa:stable
-    restart: on-failure
+    restart: unless-stopped
     ports:
       - 9392:80
     volumes:
@@ -108,7 +108,7 @@ services:
 
   ospd-openvas:
     image: greenbone/ospd-openvas:stable
-    restart: on-failure
+    restart: unless-stopped
     init: true
     hostname: ospd-openvas.local
     cap_add:
@@ -145,7 +145,7 @@ services:
         condition: service_completed_successfully
 
   mqtt-broker:
-    restart: on-failure
+    restart: unless-stopped
     image: greenbone/mqtt-broker:latest
     ports:
       - 1883:1883
@@ -156,7 +156,7 @@ services:
           - broker
 
   notus-scanner:
-    restart: on-failure
+    restart: unless-stopped
     image: greenbone/notus-scanner:stable
     volumes:
       - notus_data_vol:/var/lib/notus
@@ -182,7 +182,7 @@ services:
 # Rest API
   rest-api:
     image: ghcr.io/shield-cyber/shieldcyber-rest-api:latest
-    restart: on-failure
+    restart: unless-stopped
     pull_policy: always
     ports:
       - 8000:8000
@@ -201,7 +201,7 @@ services:
   redis-db:
     image: redis:latest
     command: "redis-server --appendonly yes"
-    restart: on-failure
+    restart: unless-stopped
     expose:
       - 6379:6379
     volumes:
