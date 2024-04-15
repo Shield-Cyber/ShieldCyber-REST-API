@@ -2,9 +2,6 @@ services:
   vulnerability-tests:
     image: greenbone/vulnerability-tests:latest
     pull_policy: always
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     environment:
       STORAGE_PATH: /var/lib/openvas/22.04/vt-data/nasl
     volumes:
@@ -13,36 +10,24 @@ services:
   notus-data:
     image: greenbone/notus-data:latest
     pull_policy: always
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     volumes:
       - notus_data_vol:/mnt
 
   scap-data:
     image: greenbone/scap-data:latest
     pull_policy: always
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     volumes:
       - scap_data_vol:/mnt
 
   cert-bund-data:
     image: greenbone/cert-bund-data:latest
     pull_policy: always
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     volumes:
       - cert_data_vol:/mnt
 
   dfn-cert-data:
     image: greenbone/dfn-cert-data:latest
     pull_policy: always
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     volumes:
       - cert_data_vol:/mnt
     depends_on:
@@ -51,18 +36,12 @@ services:
   data-objects:
     image: greenbone/data-objects:latest
     pull_policy: always
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     volumes:
       - data_objects_vol:/mnt
 
   report-formats:
     image: greenbone/report-formats:latest
     pull_policy: always
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     volumes:
       - data_objects_vol:/mnt
     depends_on:
@@ -71,27 +50,18 @@ services:
   gpg-data:
     image: greenbone/gpg-data:latest
     pull_policy: always
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     volumes:
       - gpg_data_vol:/mnt
 
   redis-server:
     image: greenbone/redis-server:latest
     restart: unless-stopped
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     volumes:
       - redis_socket_vol:/run/redis/
 
   pg-gvm:
     image: greenbone/pg-gvm:stable
     restart: unless-stopped
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     volumes:
       - psql_data_vol:/var/lib/postgresql
       - psql_socket_vol:/var/run/postgresql
@@ -99,9 +69,6 @@ services:
   gvmd:
     image: greenbone/gvmd:stable
     restart: unless-stopped
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     environment:
       - USERNAME=admin # DEFAULT USERNAME 'admin'
       - PASSWORD=${PASSWORD:-admin} # Admin Password Set by Env File
@@ -132,9 +99,6 @@ services:
   gsa:
     image: greenbone/gsa:stable
     restart: unless-stopped
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     ports:
       - 9392:80
     volumes:
@@ -145,9 +109,6 @@ services:
   ospd-openvas:
     image: greenbone/ospd-openvas:stable
     restart: unless-stopped
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     init: true
     hostname: ospd-openvas.local
     cap_add:
@@ -185,9 +146,6 @@ services:
 
   mqtt-broker:
     restart: unless-stopped
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     image: greenbone/mqtt-broker:latest
     ports:
       - 1883:1883
@@ -199,9 +157,6 @@ services:
 
   notus-scanner:
     restart: unless-stopped
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     image: greenbone/notus-scanner:stable
     volumes:
       - notus_data_vol:/var/lib/notus
@@ -217,9 +172,6 @@ services:
   gvm-tools:
     image: greenbone/gvm-tools:latest
     pull_policy: always
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     volumes:
       - gvmd_socket_vol:/run/gvmd
       - ospd_openvas_socket_vol:/run/ospd
@@ -231,9 +183,6 @@ services:
   rest-api:
     image: ghcr.io/shield-cyber/shieldcyber-rest-api:latest
     restart: unless-stopped
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     pull_policy: always
     ports:
       - 8000:8000
@@ -253,9 +202,6 @@ services:
     image: redis:latest
     command: "redis-server --appendonly yes"
     restart: unless-stopped
-    dns:
-      - 127.0.0.1
-      - 8.8.8.8
     expose:
       - 6379:6379
     volumes:
