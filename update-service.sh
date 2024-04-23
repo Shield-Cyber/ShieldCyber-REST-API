@@ -3,22 +3,21 @@
 # Exit on any errors
 set -e
 
-# Color codes for output messages
-RED="\033[0;31m"
-GREEN="\033[0;32m"
-YELLOW="\033[1;33m"
-NC="\033[0m" # No Color
+# Default directory and service settings
+instDir="/opt/shield"
+serviceName="ShieldCyber.Agent.Shield"
+serviceFile="$serviceName.service"
+servicePath="/etc/systemd/system/$serviceFile"
+downloadURL="https://shieldcyberstoregen.blob.core.windows.net/sc-shield-services/shield-linux.zip"
 
-# Default values for flags
+# Default flags
 subscriptionID=""
 locationName=""
 subscriptionAPIKey=""
-instDir="/opt/shield/scripts"
-downloadURL="https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/scripts/"
 
-# Help message for usage
+# Help message
 usage() {
-    echo -e "${YELLOW}Usage: $0 [options]${NC}"
+    echo "Usage: $0 [options]"
     echo "Options:"
     echo "  -s    Subscription ID"
     echo "  -l    Location Name"
@@ -29,92 +28,55 @@ usage() {
 
 # Parse command line options
 while getopts ":s:l:k:h" opt; do
-    case ${opt} in
-        s )
-            subscriptionID=$OPTARG
-            ;;
-        l )
-            locationName=$OPTARG
-            ;;
-        k )
-            subscriptionAPIKey=$OPTARG
-            ;;
-        h )
-            usage
-            ;;
-        \? )
-            echo -e "${RED}Invalid Option: -$OPTARG${NC}" 1>&2
-            usage
-            ;;
-        : )
-            echo -e "${RED}Invalid Option: -$OPTARG requires an argument${NC}" 1>&2
-            usage
-            ;;
+    case $opt in
+        s ) subscriptionID=$OPTARG ;;
+        l ) locationName=$OPTARG ;;
+        k ) subscriptionAPIKey=$OPTARG ;;
+        h ) usage ;;
+        ? ) echo "Invalid Option: -$OPTARG" >&2; usage ;;
+        : ) echo "Option -$OPTARG requires an argument." >&2; usage ;;
     esac
 done
-shift $((OPTIND -1))
 
-# Function to ensure directory exists
-ensure_directory() {
-    local directory=$1
-
-    if [ ! -d "$directory" ]; then
-        mkdir -p "$directory"
-        echo -e "${YELLOW}$directory created.${NC}"
-    fi
-}
-
-# Function to download a file
-download_file() {
-    local url=$downloadURL$1
-    local filename=$(basename "$url")
-    local filepath="$instDir/$filename"
-
-    ensure_directory "$instDir"
-
-    echo -e "${YELLOW}Downloading $filename to $instDir...${NC}"
-    curl -sS "$url" -o "$filepath"
-    echo -e "${GREEN}$filename downloaded to $instDir!${NC}"
-}
-
-#Stop and Remove Shield Service
-
-systemctl stop ShieldCyber.Agent.Shield
-
-systemctl disable ShieldCyber.Agent.Shield
-
-rm /etc/systemd/system/ShieldCyber.Agent.Shield.service
-
+# Stop, disable, and remove existing service
+systemctl stop $serviceName
+systemctl disable $serviceName
+rm -f $servicePath
 systemctl daemon-reload
-
 systemctl reset-failed
 
-# Download and setup Shield Linux Scanner Service
-echo "Downloading and setting up Shield Linux Scanner Service..."
-mkdir -p /opt/shield
-cd /opt/shield
-wget https://shieldcyberstoregen.blob.core.windows.net/sc-shield-services/shield-linux.zip -O shield-linux.zip
-unzip -o shield-linux.zip -d /opt/shield
-rm -rf /opt/shield/__MACOSX
-if [ -d "/opt/shield/shield-linux" ]; then
-    mv /opt/shield/shield-linux/* /opt/shield/
-    rmdir /opt/shield/shield-linux
+# Back up the current appsettings.json
+echo "Backing up current appsettings.json..."
+cp $instDir/appsettings.json $instDir/appsettings.json.bak
+
+# Download and extract new service files
+echo "Downloading new service files..."
+wget -q -O shield-linux.zip $downloadURL
+unzip -o shield-linux.zip -d $instDir
+rm -f shield-linux.zip
+
+# Restore the original appsettings.json if no flags are provided, otherwise update
+if [ -n "$subscriptionID" ] || [ -n "$locationName" ] || [ -n "$subscriptionAPIKey" ]; then
+    echo "Updating appsettings.json with new settings..."
+    jq --arg s "$subscriptionID" --arg l "$locationName" --arg k "$subscriptionAPIKey" \
+       '.AppSettings.SubscriptionId = $s | .AppSettings.LocationName = $l | .AppSettings.SubscriptionApiKey = $k' \
+       $instDir/appsettings.json > $instDir/appsettings.tmp.json
+    mv $instDir/appsettings.tmp.json $instDir/appsettings.json
+else
+    echo "Restoring original appsettings.json..."
+    cp $instDir/appsettings.json.bak $instDir/appsettings.json
 fi
-sudo chmod +x /opt/shield/ShieldCyber.Agent.Shield
 
-# Update appsettings.json
-echo "Updating appsettings.json..."
-jq --arg subscriptionID "$subscriptionID" \
-   --arg locationName "$locationName" \
-   --arg subscriptionAPIKey "$subscriptionAPIKey" \
-   '.AppSettings.SubscriptionId = $subscriptionID | .AppSettings.LocationName = $locationName | .AppSettings.SubscriptionApiKey = $subscriptionAPIKey' \
-   /opt/shield/appsettings.json > /opt/shield/appsettings.tmp.json
-mv /opt/shield/appsettings.tmp.json /opt/shield/appsettings.json
+# Clean up backup file
+rm -f $instDir/appsettings.json.bak
 
-# Create the ShieldCyberAgent Service
-echo "Setting up ShieldCyberAgent Service..."
-sudo cp /opt/shield/ShieldCyber.Agent.Shield.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable ShieldCyber.Agent.Shield.service
-sudo systemctl start ShieldCyber.Agent.Shield.service
-echo -e "${GREEN}ShieldCyberAgent Service setup complete.${NC}"
+# Setup and start new service
+echo "Setting up new service..."
+chmod +x $instDir/$serviceName
+cp $instDir/$serviceFile $servicePath
+systemctl daemon-reload
+systemctl enable $serviceName
+systemctl start $serviceName
+echo "Service setup complete."
+
+exit 0
