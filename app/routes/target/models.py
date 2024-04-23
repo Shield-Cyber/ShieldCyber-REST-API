@@ -15,8 +15,8 @@ class CreateTarget:
     esxi_credential_id: Optional[str] = None
     snmp_credential_id: Optional[str] = None
     alive_test: Optional[AliveTest] = None
-    reverse_lookup_only: Optional[bool] = None
-    reverse_lookup_unify: Optional[bool] = None
+    reverse_lookup_only: Optional[bool] = False
+    reverse_lookup_unify: Optional[bool] = False
     port_range: Optional[str] = None
     port_list_id: Optional[str] = None
 
