@@ -82,8 +82,8 @@ download_file() {
 sudo apt update -y && sudo apt upgrade -y 
 echo "Installing prerequisites..."
 sudo apt update -y
-sudo apt install -y dotnet-sdk-7.0 
-sudo apt install -y aspnetcore-runtime-7.0 
+sudo apt install -y dotnet-sdk-8.0 
+sudo apt install -y aspnetcore-runtime-8.0 
 sudo apt install -y jq 
 sudo apt install -y unzip
 sudo apt install -y curl
