@@ -40,6 +40,59 @@ set_password() {
     echo -e "${GREEN}Password set successfully.${NC}"
 }
 
+# Function to detect the OS and install Docker accordingly
+install_docker() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        OS=$ID
+        VERSION=$VERSION_ID
+    else
+        OS=$(uname -s)
+        VERSION=$(uname -r)
+    fi
+
+    echo -e "${YELLOW}Detected OS: $OS $VERSION ${NC}"
+
+    case "$OS" in
+        *rocky*)
+            sudo dnf -y update
+            sudo dnf -y install dnf-plugins-core
+            sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+            sudo dnf -y install docker-ce docker-ce-cli containerd.io
+            ;;
+        *debian*|*kali*)
+            sudo apt-get -y update
+            sudo apt-get -y install apt-transport-https ca-certificates curl gnupg lsb-release
+            curl -fsSL https://download.docker.com/linux/$OS/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/$OS $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            sudo apt-get -y update
+            sudo apt-get -y install docker-ce docker-ce-cli containerd.io
+            ;;
+        *freebsd*)
+            sudo pkg install -y docker
+            sudo sysrc docker_enable="YES"
+            sudo service docker start
+            ;;
+        *rhel*)
+            sudo yum -y update
+            sudo yum -y install yum-utils
+            sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+            sudo yum -y install docker-ce docker-ce-cli containerd.io
+            ;;
+        *suse*)
+            sudo zypper refresh
+            sudo zypper install -y docker docker-compose
+            ;;
+        *)
+            echo -e "${RED}Unsupported OS. Exiting.${NC}"
+            exit 1
+            ;;
+    esac
+
+    sudo systemctl enable docker
+    sudo systemctl start docker
+}
+
 # Parse command-line arguments
 while [[ $# -gt 0 ]]; do
     key="$1"
@@ -66,28 +119,7 @@ ensure_directory "$instDir"
 echo -e "${YELLOW}Installing Shield Scanner and its Dependencies ${NC}"
 
 # Install Docker
-echo -e "${YELLOW}Removing existing Docker installations... ${NC}"
-sudo apt-get remove -y docker docker-engine docker.io containerd runc
-
-echo -e "${YELLOW}Updating package repositories... ${NC}"
-sudo apt-get update
-
-echo -e "${YELLOW}Installing necessary dependencies... ${NC}"
-sudo apt-get install -y ca-certificates curl gnupg
-
-echo -e "${YELLOW}Setting up Docker GPG key... ${NC}"
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-echo -e "${YELLOW}Configuring Docker repository... ${NC}"
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-echo -e "${YELLOW}Updating package repositories... ${NC}"
-sudo apt-get update
-
-echo -e "${YELLOW}Installing Docker... ${NC}"
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose
+install_docker
 
 # Check if Docker installation was successful
 if command -v docker &> /dev/null ; then

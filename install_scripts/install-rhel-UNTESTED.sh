@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # Exit on any errors
@@ -69,31 +68,28 @@ ensure_directory() {
 download_file() {
     local url=$downloadURL$1
     local filename=$(basename "$url")
+    if [ -n "$2" ]; then
+        instDir="$2"
+    fi
     local filepath="$instDir/$filename"
 
     ensure_directory "$instDir"
 
     echo -e "${YELLOW}Downloading $filename to $instDir...${NC}"
-    curl -sS "$url" -o "$filepath"
+    sudo wget -q "$url" -O "$filepath"
     echo -e "${GREEN}$filename downloaded to $instDir!${NC}"
 }
 
 # Install prerequisites
-sudo apt update -y && sudo apt upgrade -y 
+sudo yum update -y
 echo "Installing prerequisites..."
-sudo apt update -y
-sudo apt install -y dotnet-sdk-8.0 
-sudo apt install -y aspnetcore-runtime-8.0 
-sudo apt install -y jq 
-sudo apt install -y unzip
-sudo apt install -y curl
-sudo apt update -y
+sudo yum install -y dotnet-sdk-8.0 aspnetcore-runtime-8.0 jq unzip curl wget
 
 # Download and setup Shield Linux Scanner Service
 echo "Downloading and setting up Shield Linux Scanner Service..."
 mkdir -p /opt/shield
 cd /opt/shield
-wget https://shieldcyberstoregen.blob.core.windows.net/sc-shield-services/shield-linux.zip -O shield-linux.zip
+wget -q https://shieldcyberstoregen.blob.core.windows.net/sc-shield-services/shield-linux.zip -O shield-linux.zip
 unzip -o shield-linux.zip -d /opt/shield
 rm -rf /opt/shield/__MACOSX
 if [ -d "/opt/shield/shield-linux" ]; then
@@ -124,20 +120,13 @@ echo -e "${GREEN}ShieldCyberAgent Service setup complete.${NC}"
 
 # Download Shield Executable and Helper Scripts
 echo -e "${YELLOW}Setting up Shield Scanner Software...${NC}"
-curl -sSo /usr/local/bin/shield https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/scripts/shield
-chmod +x /usr/local/bin/shield
+download_file shield /usr/local/bin
 download_file full-install.sh
 download_file vuln-update.sh
 download_file full-update.sh
+download_file update-service.sh /opt/shield
 echo -e "${GREEN}Shield Scanner Software setup complete.${NC}"
 
-# Download update-service.sh to /opt/shield
-echo "Downloading update-service.sh to /opt/shield..."
-curl -sS "https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/update-service.sh" -o "/opt/shield/update-service.sh"
-# Alternatively, you can use wget:
-# wget https://raw.githubusercontent.com/Shield-Cyber/ShieldCyber-REST-API/main/update-service.sh -O /opt/shield/update-service.sh
-
-# Set executable permission for the script
-chmod +x /opt/shield/update-service.sh
-
-echo -e "${GREEN}update-service.sh downloaded and setup complete.${NC}"
+# Set executable permission for the scripts
+sudo chmod +x /usr/local/bin/shield
+sudo chmod +x /opt/shield/update-service.sh
