@@ -51,7 +51,7 @@ cp $instDir/appsettings.json $instDir/appsettings.json.bak
 
 # Download and extract new service files
 echo "Downloading new service files..."
-wget -q -O shield-linux.zip $downloadURL
+curl -sL -o shield-linux.zip "$downloadURL"
 unzip -o shield-linux.zip -d $instDir
 rm -f shield-linux.zip
 
