@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, List
-from gvm.protocols.gmpv208.entities.targets import AliveTest
+# from gvm.protocols.gmpv208.entities.targets import AliveTest
+from gvm.protocols.gmp.requests.v224 import AliveTest
 
 @dataclass
 class CreateTarget:

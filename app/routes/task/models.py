@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, List
-from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
+# from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
+from gvm.protocols.gmp.requests.v224 import HostsOrdering
 
 @dataclass
 class CreateTask:

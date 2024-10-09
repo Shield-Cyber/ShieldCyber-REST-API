@@ -7,7 +7,8 @@ import logging
 from gvm.connections import UnixSocketConnection
 from typing import Annotated, Optional
 from app import LOGGING_PREFIX
-from gvm.protocols.gmpv208.entities.port_lists import PortRangeType
+# from gvm.protocols.gmpv208.entities.port_lists import PortRangeType
+from gvm.protocols.gmp.requests.v224 import PortRangeType
 
 from . import models as Models
 

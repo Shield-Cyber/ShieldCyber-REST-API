@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from gvm.protocols.gmpv208.entities.port_lists import PortRangeType
+# from gvm.protocols.gmpv208.entities.port_lists import PortRangeType
+from gvm.protocols.gmp.requests.v224 import PortRangeType
 
 @dataclass
 class CreatePortList:

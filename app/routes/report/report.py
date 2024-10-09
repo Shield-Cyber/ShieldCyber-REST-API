@@ -6,7 +6,8 @@ from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
 from typing import Annotated, Optional, Union
-from gvm.protocols.gmpv208.entities.report_formats import ReportFormatType
+# from gvm.protocols.gmpv208.entities.report_formats import ReportFormatType
+from gvm.protocols.gmp.requests.v224 import ReportFormatType
 from app import LOGGING_PREFIX
 
 from . import models as Models
