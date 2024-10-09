@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
-from gvm.protocols.gmpv208.entities.scanners import ScannerType
+# from gvm.protocols.gmpv208.entities.scanners import ScannerType
+from gvm.protocols.gmp.requests.v224 import ScannerType
 
 @dataclass
 class CreateScanner:

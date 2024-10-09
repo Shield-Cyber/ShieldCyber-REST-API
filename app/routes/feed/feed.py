@@ -6,7 +6,8 @@ from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
 from typing import Annotated, Optional
-from gvm.protocols.gmpv208.system.feed import FeedType
+# from gvm.protocols.gmpv208.system.feed import FeedType
+from gvm.protocols.gmp.requests.v224 import FeedType
 from app import LOGGING_PREFIX
 
 ENDPOINT = "feed"

@@ -6,7 +6,8 @@ from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
 from typing import Annotated, Optional, List
-from gvm.protocols.gmpv208.entities.targets import AliveTest
+# from gvm.protocols.gmpv208.entities.targets import AliveTest
+from gvm.protocols.gmp.requests.v224 import AliveTest
 from gvm.errors import RequiredArgument
 from app import LOGGING_PREFIX
 
@@ -111,7 +112,7 @@ async def get_target(
         except Exception as err:
             LOGGER.error(f"GMP Error: {err}")
             return ErrorResponse("Internal Server Error")
-    
+
 @ROUTER.post("/clone/{target_id}")
 async def clone_target(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
@@ -133,7 +134,7 @@ async def clone_target(
         except Exception as err:
             LOGGER.error(f"GMP Error: {err}")
             return ErrorResponse("Internal Server Error")
-    
+
 @ROUTER.delete("/delete/{target_id}")
 async def delete_target(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
@@ -154,7 +155,7 @@ async def delete_target(
         except Exception as err:
             LOGGER.error(f"GMP Error: {err}")
             return ErrorResponse("Internal Server Error")
-    
+
 @ROUTER.patch("/modify/{target_id}")
 async def modify_target(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],

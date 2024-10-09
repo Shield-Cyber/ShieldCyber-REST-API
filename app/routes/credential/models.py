@@ -1,7 +1,12 @@
 from dataclasses import dataclass
 from pydantic import BaseModel
 from typing import Optional
-from gvm.protocols.gmpv208.entities.credentials import CredentialType, SnmpAuthAlgorithm, SnmpPrivacyAlgorithm
+# from gvm.protocols.gmpv208.entities.credentials import CredentialType, SnmpAuthAlgorithm, SnmpPrivacyAlgorithm
+from gvm.protocols.gmp.requests.v224 import (
+    CredentialType,
+    SnmpAuthAlgorithm,
+    SnmpPrivacyAlgorithm,
+)
 
 @dataclass
 class CreateCredential:

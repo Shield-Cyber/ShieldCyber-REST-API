@@ -6,7 +6,8 @@ from gvm.protocols.gmp import Gmp
 import logging
 from gvm.connections import UnixSocketConnection
 from typing import Annotated, Optional, List
-from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
+# from gvm.protocols.gmpv208.entities.hosts import HostsOrdering
+from gvm.protocols.gmp.requests.v224 import HostsOrdering
 from app import LOGGING_PREFIX
 
 from . import models as Models

@@ -6,7 +6,12 @@ from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
 from gvm.connections import UnixSocketConnection
 from gvm.errors import RequiredArgument
-from gvm.protocols.gmpv208.entities.credentials import CredentialType, SnmpAuthAlgorithm, SnmpPrivacyAlgorithm, CredentialFormat
+from gvm.protocols.gmp.requests.v224 import (
+    CredentialFormat,
+    CredentialType,
+    SnmpPrivacyAlgorithm,
+    SnmpAuthAlgorithm,
+)
 from typing import Annotated, Optional
 import logging
 
@@ -150,7 +155,7 @@ def clone_credential(
         except Exception as err:
             LOGGER.error(f"GMP Error: {err}")
             return ErrorResponse("Internal Server Error")
-    
+
 @ROUTER.delete("/delete/{credential_id}")
 def delete_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
@@ -171,7 +176,7 @@ def delete_credential(
         except Exception as err:
             LOGGER.error(f"GMP Error: {err}")
             return ErrorResponse("Internal Server Error")
-    
+
 @ROUTER.patch("/modify/{credential_id}")
 def modify_credential(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
