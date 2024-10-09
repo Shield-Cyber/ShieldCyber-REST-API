@@ -6,7 +6,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "uvicorn /workspaces/RESTBone/app/main:app --reload",
+            "command": "uvicorn app.main:app --reload --log-config ./app/config/log.yaml",
             "problemMatcher": []
         }
     ]

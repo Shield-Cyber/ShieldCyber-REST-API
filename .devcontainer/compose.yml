@@ -1,0 +1,252 @@
+version: "3.8"
+services:
+  devcontainer:
+    image: mcr.microsoft.com/devcontainers/python:1-3.12-bullseye
+    user: root
+    volumes:
+      - ../..:/workspaces:cached
+      - gvmd_socket_vol:/run/gvmd
+      - api_logs_vol:/logs
+    environment:
+      - PROD=False
+      - USERNAME=admin # DEFAULT USERNAME 'admin'
+      - PASSWORD=admin
+    depends_on:
+      - gvmd
+      - redis-db
+    command: sleep infinity
+  # redis:
+  #   image: redis/redis-stack:7.2.0-v9
+  #   restart: unless-stopped
+  #   environment:
+  #     - REDIS_ARGS=--appendonly yes
+  #   # volumes:
+  #   #   - redis-data:/data
+  #   ports:
+  #     - 8001:8001
+  vulnerability-tests:
+    image: greenbone/vulnerability-tests:latest
+    pull_policy: always
+    environment:
+      STORAGE_PATH: /var/lib/openvas/22.04/vt-data/nasl
+    volumes:
+      - vt_data_vol:/mnt
+
+  notus-data:
+    image: greenbone/notus-data:latest
+    pull_policy: always
+    volumes:
+      - notus_data_vol:/mnt
+
+  scap-data:
+    image: greenbone/scap-data:latest
+    pull_policy: always
+    volumes:
+      - scap_data_vol:/mnt
+
+  cert-bund-data:
+    image: greenbone/cert-bund-data:latest
+    pull_policy: always
+    volumes:
+      - cert_data_vol:/mnt
+
+  dfn-cert-data:
+    image: greenbone/dfn-cert-data:latest
+    pull_policy: always
+    volumes:
+      - cert_data_vol:/mnt
+    depends_on:
+      - cert-bund-data
+
+  data-objects:
+    image: greenbone/data-objects:latest
+    pull_policy: always
+    volumes:
+      - data_objects_vol:/mnt
+
+  report-formats:
+    image: greenbone/report-formats:latest
+    pull_policy: always
+    volumes:
+      - data_objects_vol:/mnt
+    depends_on:
+      - data-objects
+
+  gpg-data:
+    image: greenbone/gpg-data:latest
+    pull_policy: always
+    volumes:
+      - gpg_data_vol:/mnt
+
+  redis-server:
+    image: greenbone/redis-server:latest
+    restart: on-failure
+    volumes:
+      - redis_socket_vol:/run/redis/
+
+  pg-gvm:
+    image: greenbone/pg-gvm:stable
+    restart: on-failure
+    volumes:
+      - psql_data_vol:/var/lib/postgresql
+      - psql_socket_vol:/var/run/postgresql
+
+  gvmd:
+    image: greenbone/gvmd:stable
+    restart: on-failure
+    environment:
+      - USERNAME=admin # DEFAULT USERNAME 'admin'
+      - PASSWORD=${PASSWORD:-admin} # Admin Password Set by Env File
+    volumes:
+      - gvmd_data_vol:/var/lib/gvm
+      - scap_data_vol:/var/lib/gvm/scap-data/
+      - cert_data_vol:/var/lib/gvm/cert-data
+      - data_objects_vol:/var/lib/gvm/data-objects/gvmd
+      - vt_data_vol:/var/lib/openvas/plugins
+      - psql_data_vol:/var/lib/postgresql
+      - gvmd_socket_vol:/run/gvmd
+      - ospd_openvas_socket_vol:/run/ospd
+      - psql_socket_vol:/var/run/postgresql
+    depends_on:
+      pg-gvm:
+        condition: service_started
+      scap-data:
+        condition: service_completed_successfully
+      cert-bund-data:
+        condition: service_completed_successfully
+      dfn-cert-data:
+        condition: service_completed_successfully
+      data-objects:
+        condition: service_completed_successfully
+      report-formats:
+        condition: service_completed_successfully
+
+  gsa:
+    image: greenbone/gsa:stable
+    restart: on-failure
+    ports:
+      - 9392:80
+    volumes:
+      - gvmd_socket_vol:/run/gvmd
+    depends_on:
+      - gvmd
+
+  ospd-openvas:
+    image: greenbone/ospd-openvas:stable
+    restart: on-failure
+    init: true
+    hostname: ospd-openvas.local
+    cap_add:
+      - NET_ADMIN # for capturing packages in promiscuous mode
+      - NET_RAW # for raw sockets e.g. used for the boreas alive detection
+    security_opt:
+      - seccomp=unconfined
+      - apparmor=unconfined
+    command:
+      [
+        "ospd-openvas",
+        "-f",
+        "--config",
+        "/etc/gvm/ospd-openvas.conf",
+        "--mqtt-broker-address",
+        "mqtt-broker",
+        "--notus-feed-dir",
+        "/var/lib/notus/advisories",
+        "-m",
+        "666"
+      ]
+    volumes:
+      - gpg_data_vol:/etc/openvas/gnupg
+      - vt_data_vol:/var/lib/openvas/plugins
+      - notus_data_vol:/var/lib/notus
+      - ospd_openvas_socket_vol:/run/ospd
+      - redis_socket_vol:/run/redis/
+    depends_on:
+      redis-server:
+        condition: service_started
+      gpg-data:
+        condition: service_completed_successfully
+      vulnerability-tests:
+        condition: service_completed_successfully
+
+  mqtt-broker:
+    restart: on-failure
+    image: greenbone/mqtt-broker:latest
+    ports:
+      - 1883:1883
+    networks:
+      default:
+        aliases:
+          - mqtt-broker
+          - broker
+
+  notus-scanner:
+    restart: on-failure
+    image: greenbone/notus-scanner:stable
+    volumes:
+      - notus_data_vol:/var/lib/notus
+      - gpg_data_vol:/etc/openvas/gnupg
+    environment:
+      NOTUS_SCANNER_MQTT_BROKER_ADDRESS: mqtt-broker
+      NOTUS_SCANNER_PRODUCTS_DIRECTORY: /var/lib/notus/products
+    depends_on:
+      - mqtt-broker
+      - gpg-data
+      - vulnerability-tests
+
+  gvm-tools:
+    image: greenbone/gvm-tools:latest
+    pull_policy: always
+    volumes:
+      - gvmd_socket_vol:/run/gvmd
+      - ospd_openvas_socket_vol:/run/ospd
+    depends_on:
+      - gvmd
+      - ospd-openvas
+
+# Rest API
+  # rest-api:
+  #   image: ghcr.io/shield-cyber/shieldcyber-rest-api:latest
+  #   restart: on-failure
+  #   pull_policy: always
+  #   ports:
+  #     - 8000:8000
+  #   environment:
+  #     - VERSION=0.0.0
+  #     - PROD=False # Prod Mode, Only Used for Devs
+  #     - USERNAME=admin # DEFAULT USERNAME 'admin'
+  #     - PASSWORD=${PASSWORD:-admin} # SET ADMIN PASSWORD
+  #   depends_on:
+  #     - gvmd
+  #     - redis-db
+  #   volumes:
+  #     - gvmd_socket_vol:/run/gvmd
+  #     - api_logs_vol:/logs
+
+# Redis Database for Dev Rest API
+  redis-db:
+    image: redis/redis-stack:latest
+    restart: on-failure
+    environment:
+      - REDIS_ARGS=--appendonly yes
+    ports:
+      - 6378:6379
+      - 8001:8001
+    volumes:
+      - redis_data:/data
+
+volumes:
+  gpg_data_vol:
+  scap_data_vol:
+  cert_data_vol:
+  data_objects_vol:
+  gvmd_data_vol:
+  psql_data_vol:
+  vt_data_vol:
+  notus_data_vol:
+  psql_socket_vol:
+  gvmd_socket_vol:
+  ospd_openvas_socket_vol:
+  redis_socket_vol:
+  api_logs_vol:
+  redis_data:
