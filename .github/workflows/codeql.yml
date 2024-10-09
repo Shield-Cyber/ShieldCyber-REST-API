@@ -129,24 +129,24 @@ jobs:
         with:
           platforms: linux/amd64
           context: ./app
-          # load: true
+          load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # cache-from: type=gha
-          # cache-to: type=gha,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      -
-        name: Docker Scout Recommendations
-        id: docker-scout-recs
-#         if: ${{ github.event_name == 'pull_request' }}
-        uses: docker/scout-action@v0.19.0
-        with:
-          command: compare,recommendations
-          image: ${{ steps.meta.outputs.tags }}
-          to: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          write-comment: false
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          summary: true
+#       -
+#         name: Docker Scout Recommendations
+#         id: docker-scout-recs
+# #         if: ${{ github.event_name == 'pull_request' }}
+#         uses: docker/scout-action@v0.19.0
+#         with:
+#           command: compare,recommendations
+#           image: ${{ steps.meta.outputs.tags }}
+#           to: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+#           write-comment: false
+#           github-token: ${{ secrets.GITHUB_TOKEN }}
+#           summary: true
 
       - 
         name: Analyze for Critical and High CVEs
