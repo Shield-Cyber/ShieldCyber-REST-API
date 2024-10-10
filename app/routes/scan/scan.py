@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, Body
 from app.utils.auth import Auth
 from app.utils.xml import XMLResponse
 from app.utils.error import ErrorResponse
@@ -58,13 +58,16 @@ async def get_scan_configs(
 @ROUTER.post("/import/config")
 async def import_scan_config(
     current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
-    config: str,
+    config = Body(..., media_type="application/xml")
 ):
     """Import a scan config from XML
 
     Args:
-        config: Scan Config XML as string to import. This XML must
-            contain a :code:`<get_configs_response>` root element.
+
+        config: Scan Config XML as string to import. This XML must contain a `<get_configs_response>` root element.
+    
+    Make the entire body the raw xml.
+
     """
     with Gmp(connection=UnixSocketConnection()) as gmp:
         gmp.authenticate(
