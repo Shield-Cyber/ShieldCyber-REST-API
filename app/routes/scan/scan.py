@@ -54,3 +54,24 @@ async def get_scan_configs(
             LOGGER.error(f"GMP Error: {err}")
             return ErrorResponse("Internal Server Error")
 
+
+@ROUTER.post("/import/config")
+async def import_scan_config(
+    current_user: Annotated[Auth.User, Depends(Auth.get_current_active_user)],
+    config: str,
+):
+    """Import a scan config from XML
+
+    Args:
+        config: Scan Config XML as string to import. This XML must
+            contain a :code:`<get_configs_response>` root element.
+    """
+    with Gmp(connection=UnixSocketConnection()) as gmp:
+        gmp.authenticate(
+            username=current_user.username, password=Auth.get_admin_password()
+        )
+        try:
+            return gmp.import_scan_config(config)
+        except Exception as err:
+            LOGGER.error(f"GMP Error: {err}")
+            return ErrorResponse("Internal Server Error")
