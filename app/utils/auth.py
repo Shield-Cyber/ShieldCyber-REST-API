@@ -9,10 +9,11 @@ import logging
 from app import LOGGING_PREFIX, USERNAME, PASSWORD
 from app.database import crud as DATABASE
 import pickle
+import secrets
 
 LOGGER = logging.getLogger(f"{LOGGING_PREFIX}.auth")
 
-SECRET_KEY = "5ef48f2decbe7df5467a771018a2d33d05d4b8d896751d72cb80c71883c483f8"
+SECRET_KEY = secrets.token_urlsafe(32)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
