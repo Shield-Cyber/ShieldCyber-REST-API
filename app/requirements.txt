@@ -1,6 +1,6 @@
 
 python-gvm~=26.7.0
-fastapi~=0.122.0
+fastapi~=0.123.0
 python-multipart~=0.0.12
 uvicorn[standard]~=0.38.0
 bcrypt~=4.3.0
