@@ -56,6 +56,16 @@ async def get_report(
             return gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details)
         except Exception as err:
             LOGGER.error(f"GMP Error: {err}")
+            # Retry without details if the original request had details=True
+            # This handles the case where empty reports cause connection errors with details=True
+            if details:
+                LOGGER.warning(f"Retrying report {report_id} without details parameter")
+                try:
+                    with Gmp(connection=UnixSocketConnection()) as gmp_retry:
+                        gmp_retry.authenticate(username=current_user.username, password=Auth.get_admin_password())
+                        return gmp_retry.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=False)
+                except Exception as retry_err:
+                    LOGGER.error(f"GMP Error on retry: {retry_err}")
             return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/reports")
