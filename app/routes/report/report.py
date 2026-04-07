@@ -3,7 +3,9 @@ from app.utils.auth import Auth
 from app.utils.xml import XMLResponse
 from app.utils.error import ErrorResponse
 from gvm.protocols.gmp import Gmp
+from gvm.errors import GvmError
 import logging
+import xml.etree.ElementTree as ET
 from gvm.connections import UnixSocketConnection
 from typing import Annotated, Optional, Union
 # from gvm.protocols.gmpv208.entities.report_formats import ReportFormatType
@@ -54,8 +56,40 @@ async def get_report(
         gmp.authenticate(username=current_user.username, password=Auth.get_admin_password())
         try:
             return gmp.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=details)
-        except Exception as err:
+        except GvmError as err:
             LOGGER.error(f"GMP Error: {err}")
+            # Retry without details if the original request had details=True
+            # This handles the case where empty reports cause connection errors with details=True
+            if details:
+                LOGGER.warning(f"Retrying report {report_id} without details parameter")
+                try:
+                    with Gmp(connection=UnixSocketConnection()) as gmp_retry:
+                        gmp_retry.authenticate(username=current_user.username, password=Auth.get_admin_password())
+                        retry_response = gmp_retry.get_report(report_id=report_id, filter_string=filter_string, filter_id=filter_id, delta_report_id=delta_report_id, report_format_id=report_format_id, ignore_pagination=ignore_pagination, details=False)
+
+                        # VALIDATION: Check if report should have data
+                        root = ET.fromstring(retry_response)
+                        result_count_elem = root.find('.//result_count/filtered')
+                        hosts_count_elem = root.find('.//hosts/count')
+
+                        result_count = int(result_count_elem.text) if result_count_elem is not None else 0
+                        hosts_count = int(hosts_count_elem.text) if hosts_count_elem is not None else 0
+
+                        # If report indicates it should have data, throw the original error
+                        if result_count > 0 or hosts_count > 0:
+                            LOGGER.error(f"Report {report_id} has {result_count} results and {hosts_count} hosts but failed with details=True. Original error: {err}")
+                            return ErrorResponse("Internal Server Error")
+
+                        # Report is genuinely empty, safe to return details=False version
+                        LOGGER.info(f"Report {report_id} confirmed empty (0 results, 0 hosts), returning summary")
+                        return retry_response
+
+                except Exception as retry_err:
+                    LOGGER.error(f"GMP Error on retry: {retry_err}")
+            return ErrorResponse("Internal Server Error")
+        except Exception as err:
+            # Non-GVM errors
+            LOGGER.error(f"Unexpected error: {err}")
             return ErrorResponse("Internal Server Error")
 
 @ROUTER.get("/get/reports")
